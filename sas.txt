@@ -1,0 +1,1122 @@
+
+
+/* --------------------------------------------------------------------
+   This DATA step reads the data values from DATALINES within the SAS
+   code. The values within the DATALINES were extracted from the text
+   source file by the Import Data wizard.
+   -------------------------------------------------------------------- */
+
+DATA WORK.emp1_sas;
+    LENGTH
+        Id                 8
+        FName            $ 17
+        LName            $ 6
+        Email            $ 11
+        Department       $ 9
+        Salary             8
+        Gender           $ 6
+        Age                8
+        City             $ 6 ;
+    FORMAT
+        Id               BEST4.
+        FName            $CHAR17.
+        LName            $CHAR6.
+        Email            $CHAR11.
+        Department       $CHAR9.
+        Salary           BEST6.
+        Gender           $CHAR6.
+        Age              BEST2.
+        City             $CHAR6. ;
+    INFORMAT
+        Id               BEST4.
+        FName            $CHAR17.
+        LName            $CHAR6.
+        Email            $CHAR11.
+        Department       $CHAR9.
+        Salary           BEST6.
+        Gender           $CHAR6.
+        Age              BEST2.
+        City             $CHAR6. ;
+    INFILE DATALINES4
+        DLM='7F'x
+        MISSOVER
+        DSD ;
+    INPUT
+        Id               : ?? BEST4.
+        FName            : $CHAR17.
+        LName            : $CHAR6.
+        Email            : $CHAR11.
+        Department       : $CHAR9.
+        Salary           : ?? BEST6.
+        Gender           : $CHAR6.
+        Age              : ?? BEST2.
+        City             : $CHAR6. ;
+DATALINES4;
+1001John DoeRoye@ibm.co.inIT35000Male25London
+1002Mary SmithChie@ibm.co.inHR45000Female27Mumbai
+1003James BrownRoye@ibm.co.inFinance50000Male28Delhi
+1004Mike WalkerBosee@ibm.co.inFinance50000Male28London
+1005Linda JonesRoye@ibm.co.inHR75000Female26Mumbai
+1006Anurag MohantyRoye@ibm.co.inIT35000Male25London
+1007Priyanla DewanganGuptae@ibm.co.inHR45000Female27Mumbai
+1008Sambit MohantyGuptae@ibm.co.inIT50000Male28London
+1009Pranaya KumarGuptae@ibm.co.inIT50000Male28London
+1010Hina SharmaGuptae@ibm.co.inHR75000Female26Mumbai
+1011Anurag GuptaRoye@ibm.co.inIT67000Male25London
+1012Priyaa DewanganGuptae@ibm.co.inHR45000Female27Mumbai
+1013Shaerty MohantyBosee@ibm.co.inIT50000Male28London
+1014Pranay KumarGuptae@ibm.co.inIT78000Male28London
+1015Hinaka SharmaBosee@ibm.co.inHR75000Female26Mumbai
+1017ShareenRoye@ibm.co.inAnalytics175000Female26Oulu
+1020AleniaGuptae@ibm.co.inAnalytics23455Female26Oulu
+1021ShiertuitreGuptae@ibm.co.inHR75000Female26Oulu
+2014Parag KumarBosee@ibm.co.inIT178000Male28London
+2015Henry SharmaBosee@ibm.co.inHR275000Female26Mumbai
+2017ShabanaBosee@ibm.co.inAnalytics75000Female26Oulu
+2020AlinaBosee@ibm.co.inAnalytics43455Female26Oulu
+2021shiladityaBosee@ibm.co.inHR35000Female26Oulu
+2022AnjanBosee@ibm.co.inHR35000Female26Oulu
+2023PekkiwaqaStevene@ibm.co.inHR35000Female26Oulu
+2024TemuBosee@ibm.co.inHR35000Female26Oulu
+2025Petri_ziwaStevene@ibm.co.inHR35000Female26Oulu
+2026DeepaStevene@ibm.co.inHR35000Female26Oulu
+2029AjaxStevene@ibm.co.inHR178000Female26Oulu
+;;;;
+
+
+
+
+
+DATA empBank;
+    INFILE '/home/u61577414/emp1_sas.csv' DSD FIRSTOBS=2 MISSOVER;
+    INPUT Id : 8.
+          FName : $45.
+          LName : $45.
+          Email : $45.
+          Department : $45.
+          Salary : 8.
+          Gender : $10.
+          Age : 8.
+          City : $45.;
+RUN;
+
+
+proc sql;
+    select count(distinct ACCOUNT) as Unique_Accounts from Bank;
+quit;
+
+proc sql;
+    select * from WORK.emp1_sas;
+quit;
+
+/* 1. View All Records */
+proc sql;
+    select * from WORK.emp1_sas;
+quit;
+
+/* 2. Select Specific Columns */
+proc sql;
+    select Id, Email, Department from WORK.emp1_sas;
+quit;
+
+/* 3. Count Total Number of Employees */
+proc sql;
+    select count(*) as TotalEmployees from WORK.emp1_sas;
+quit;
+
+/* 4. Count Employees in 'HR' Department */
+proc sql;
+    select count(*) as HR_Employees from WORK.emp1_sas
+    where Department = 'HR';
+quit;
+
+/* 5. Average Salary of All Employees (Rounded) */
+proc sql;
+    select round(avg(Salary), 0.01) as Avg_Salary from WORK.emp1_sas;
+quit;
+
+/* 6. Min, Max, and Average Salary */
+proc sql;
+    select 
+        max(Salary) as Max_Salary,
+        min(Salary) as Min_Salary,
+        round(avg(Salary), 0.01) as Avg_Salary
+    from WORK.emp1_sas;
+quit;
+
+/* 7. Sum of All Salaries */
+proc sql;
+    select sum(Salary) as Total_Salary from WORK.emp1_sas;
+quit;
+
+
+/*------------------------Statistics-----------------------------------------------------------------------------------------------------------------------------------*/
+
+/* 1. Mean, Median, Mode, Std Dev, Variance for Salary */
+proc means data=WORK.emp1_sas mean median mode std var;
+    var Salary;
+run;
+
+/* 2. Descriptive Statistics for Salary by Department */
+proc means data=WORK.emp1_sas mean std min max n;
+    class Department;
+    var Salary;
+run;
+
+/* 3. Correlation Between Age and Salary */
+proc corr data=WORK.emp1_sas;
+    var Age Salary;
+run;
+
+/* 4. Covariance Between Age and Salary */
+proc corr data=WORK.emp1_sas cov;
+    var Age Salary;
+run;
+
+/* 5. ANOVA: Salary Differences Across Departments */
+proc anova data=WORK.emp1_sas;
+    class Department;
+    model Salary = Department;
+run;
+quit;
+
+/* 6. T-Test: Salary Differences by Gender */
+proc ttest data=WORK.emp1_sas;
+    class Gender;
+    var Salary;
+run;
+
+/* 7. Boxplot: Salary Distribution by Department */
+proc sgplot data=WORK.emp1_sas;
+    vbox Salary / category=Department;
+run;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------Sort by Department------------------------------------------------------------------
+
+PROC SORT DATA=TEMP OUT=TEMP_SORTED;
+    BY DEPT;
+RUN;
+2. Filter Employees in IT Department
+
+DATA IT_EMPLOYEES;
+    SET TEMP;
+    WHERE DEPT = 'IT';
+RUN;
+3. Calculate Years of Service
+
+DATA TEMP_WITH_YOS;
+    SET TEMP;
+    Years_of_Service = INT((TODAY() - DOJ)/365.25);
+RUN;
+4. Get Average Salary by Department
+
+PROC MEANS DATA=TEMP NOPRINT;
+    CLASS DEPT;
+    VAR SALARY;
+    OUTPUT OUT=AVG_SALARY MEAN=Avg_Salary;
+RUN;
+5. Create a New Variable for High/Low Salary
+
+DATA TEMP_SAL_FLAG;
+    SET TEMP;
+    IF SALARY > 700 THEN SALARY_LEVEL = 'HIGH';
+    ELSE SALARY_LEVEL = 'LOW';
+RUN;
+6. List Employees Who Joined After 2010
+
+DATA JOINED_AFTER_2010;
+    SET TEMP;
+    IF DOJ > '01JAN2010'd;
+RUN;
+7. Frequency of Departments
+
+PROC FREQ DATA=TEMP;
+    TABLES DEPT;
+RUN;
+8. Find the Maximum and Minimum Salary
+
+PROC MEANS DATA=TEMP MAX MIN;
+    VAR SALARY;
+RUN;
+9. Print Only Selected Variables
+
+PROC PRINT DATA=TEMP;
+    VAR ID NAME SALARY;
+RUN;
+10. Rename a Variable (e.g., Rename SALARY to EMP_SALARY)
+
+DATA TEMP_RENAMED;
+    SET TEMP;
+    RENAME SALARY = EMP_SALARY;
+RUN;
+
+
+------------------------------------------------SAS---------------------------------------
+
+
+
+
+
+
+DATA Birth;
+    infile '/home/u61577414/BirthsKingCounty2001.txt';
+	input Gender $ 1-2 Index 3 Age $ 5-6;
+run;
+
+DATA TEMP;
+INPUT ID NAME $ SALARY DEPT $ DOJ DATE9. ;
+FORMAT DOJ DATE9. ;
+DATALINES;
+1 Rick 623.3 IT 02APR2001
+2 Dan 515.2 OPS 11JUL2012
+3 Michelle 611 IT 21OCT2000
+4 Ryan 729 HR 30JUL2012
+5 Gary 843.25 FIN 06AUG2000
+6 Tusar 578 IT 01MAR2009
+7 Pranab 632.8 OPS 16AUG1998
+8 Rasmi 722.5 FIN 13SEP2014
+;
+PROC PRINT DATA = TEMP;
+RUN;
+
+/*Sort by Department*/
+
+PROC SORT DATA=TEMP OUT=TEMP_SORTED;
+    BY DEPT;
+RUN;
+/*2. Filter Employees in IT Department*/
+
+DATA IT_EMPLOYEES;
+    SET TEMP;
+    WHERE DEPT = 'IT';
+RUN;
+/*3. Calculate Years of Service */
+
+DATA TEMP_WITH_YOS;
+    SET TEMP;
+    Years_of_Service = INT((TODAY() - DOJ)/365.25);
+RUN;
+/*4. Get Average Salary by Department */
+
+PROC MEANS DATA=TEMP NOPRINT;
+    CLASS DEPT;
+    VAR SALARY;
+    OUTPUT OUT=AVG_SALARY MEAN=Avg_Salary;
+RUN;
+/*5. Create a New Variable for High/Low Salary */
+
+DATA TEMP_SAL_FLAG;
+    SET TEMP;
+    IF SALARY > 700 THEN SALARY_LEVEL = 'HIGH';
+    ELSE SALARY_LEVEL = 'LOW';
+RUN;
+/*6. List Employees Who Joined After 2010  */
+
+DATA JOINED_AFTER_2010;
+    SET TEMP;
+    IF DOJ > '01JAN2010'd;
+RUN;
+/*7. Frequency of Departments*/
+
+PROC FREQ DATA=TEMP;
+    TABLES DEPT;
+RUN;
+/*8. Find the Maximum and Minimum Salary */
+
+PROC MEANS DATA=TEMP MAX MIN;
+    VAR SALARY;
+RUN;
+/*9. Print Only Selected Variables */
+
+PROC PRINT DATA=TEMP;
+    VAR ID NAME SALARY;
+RUN;
+/* 10. Rename a Variable (e.g., Rename SALARY to EMP_SALARY) */
+
+DATA TEMP_RENAMED;
+    SET TEMP;
+    RENAME SALARY = EMP_SALARY;
+RUN;
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+DATA Birth;
+    infile '/home/u61577414/BirthsKingCounty2001.txt';
+	input Gender $ 1-2 Index 3 Age $ 5-6;
+run;
+
+DATA TEMP;
+INPUT ID NAME $ SALARY DEPT $ DOJ DATE9. ;
+FORMAT DOJ DATE9. ;
+DATALINES;
+1 Rick 623.3 IT 02APR2001
+2 Dan 515.2 OPS 11JUL2012
+3 Michelle 611 IT 21OCT2000
+4 Ryan 729 HR 30JUL2012
+5 Gary 843.25 FIN 06AUG2000
+6 Tusar 578 IT 01MAR2009
+7 Pranab 632.8 OPS 16AUG1998
+8 Rasmi 722.5 FIN 13SEP2014
+;
+PROC PRINT DATA = TEMP;
+RUN;
+
+/*Sort by Department*/
+
+PROC SORT DATA=TEMP OUT=TEMP_SORTED;
+    BY DEPT;
+RUN;
+/*2. Filter Employees in IT Department*/
+
+DATA IT_EMPLOYEES;
+    SET TEMP;
+    WHERE DEPT = 'IT';
+RUN;
+/*3. Calculate Years of Service */
+
+DATA TEMP_WITH_YOS;
+    SET TEMP;
+    Years_of_Service = INT((TODAY() - DOJ)/365.25);
+RUN;
+/*4. Get Average Salary by Department */
+
+PROC MEANS DATA=TEMP NOPRINT;
+    CLASS DEPT;
+    VAR SALARY;
+    OUTPUT OUT=AVG_SALARY MEAN=Avg_Salary;
+RUN;
+/*5. Create a New Variable for High/Low Salary */
+
+DATA TEMP_SAL_FLAG;
+    SET TEMP;
+    IF SALARY > 700 THEN SALARY_LEVEL = 'HIGH';
+    ELSE SALARY_LEVEL = 'LOW';
+RUN;
+/*6. List Employees Who Joined After 2010  */
+
+DATA JOINED_AFTER_2010;
+    SET TEMP;
+    IF DOJ > '01JAN2010'd;
+RUN;
+/*7. Frequency of Departments*/
+
+PROC FREQ DATA=TEMP;
+    TABLES DEPT;
+RUN;
+/*8. Find the Maximum and Minimum Salary */
+
+PROC MEANS DATA=TEMP MAX MIN;
+    VAR SALARY;
+RUN;
+/*9. Print Only Selected Variables */
+
+PROC PRINT DATA=TEMP;
+    VAR ID NAME SALARY;
+RUN;
+/* 10. Rename a Variable (e.g., Rename SALARY to EMP_SALARY) */
+
+DATA TEMP_RENAMED;
+    SET TEMP;
+    RENAME SALARY = EMP_SALARY;
+RUN;
+/* 10. Find the Maximum and Minimum Salary */
+PROC MEANS DATA=TEMP MAX MIN;
+    VAR SALARY;
+RUN;
+
+/* 11. Print Only Selected Variables */
+PROC PRINT DATA=TEMP;
+    VAR ID NAME SALARY;
+RUN;
+
+/* 12. Rename Variable: SALARY to EMP_SALARY */
+DATA TEMP_RENAMED;
+    SET TEMP;
+    RENAME SALARY = EMP_SALARY;
+RUN;
+
+/* 13. Sort by Salary in Descending Order */
+PROC SORT DATA=TEMP OUT=TEMP_SORTED_SALARY;
+    BY DESCENDING SALARY;
+RUN;
+
+/* 14. Find Top 3 Highest Paid Employees */
+DATA TOP3;
+    SET TEMP_SORTED_SALARY;
+    IF _N_ <= 3;
+RUN;
+
+/* 15. Count Employees by Department using PROC SQL */
+PROC SQL;
+    SELECT DEPT, COUNT(*) AS Total_Employees
+    FROM TEMP
+    GROUP BY DEPT;
+QUIT;
+
+/* 16. Display Employees with Salary Between 600 and 750 */
+DATA SALARY_RANGE;
+    SET TEMP;
+    IF SALARY BETWEEN 600 AND 750;
+RUN;
+
+/* 17. Create a Custom Format for Salary Level */
+PROC FORMAT;
+    VALUE SALFMT
+        LOW - <600 = 'LOW'
+        600 - <700 = 'MEDIUM'
+        700 - HIGH = 'HIGH';
+RUN;
+
+DATA TEMP_FORMATTED;
+    SET TEMP;
+    FORMAT SALARY SALFMT.;
+RUN;
+
+PROC PRINT DATA=TEMP_FORMATTED;
+RUN;
+
+/* 18. Calculate Monthly Salary */
+DATA TEMP_MONTHLY;
+    SET TEMP;
+    Monthly_Salary = SALARY / 12;
+RUN;
+
+/* 19. Average Years of Service by Department */
+DATA TEMP_YOS;
+    SET TEMP;
+    Years_of_Service = INT((TODAY() - DOJ)/365.25);
+RUN;
+
+PROC MEANS DATA=TEMP_YOS NOPRINT;
+    CLASS DEPT;
+    VAR Years_of_Service;
+    OUTPUT OUT=AVG_YOS MEAN=Avg_YOS;
+RUN;
+
+/* 20. Combine Two Datasets (if TEMP2 exists) */
+/* Uncomment and modify the following if TEMP2 is defined */
+/*
+DATA COMBINED;
+    SET TEMP TEMP2;
+RUN;
+*/
+
+/* 21. Employees Whose Name Starts with 'R' */
+DATA NAME_STARTS_R;
+    SET TEMP;
+    IF SUBSTR(NAME, 1, 1) = 'R';
+RUN;
+
+/* 22. Summary Report Using PROC REPORT */
+PROC REPORT DATA=TEMP NOWD;
+    COLUMN DEPT NAME SALARY;
+    DEFINE DEPT / GROUP;
+    DEFINE NAME / DISPLAY;
+    DEFINE SALARY / ANALYSIS SUM;
+RUN;
+/*Sort it before printing (e.g., by ACCOUNT):
+
+data Bank;
+    input ACCOUNT SERVICE $ VISIT;
+    datalines;
+500026 CKING 1
+500026 SVG 2
+500026 ATM 3
+500026 ATM 4
+500075 CKING 1
+;
+run;
+
+
+*/
+
+data Bank;
+    set AAEM.BANK;
+run;
+
+PROC PRINT DATA = TEMP;
+RUN;
+
+
+PROC SORT DATA=TEMP OUT=TEMP_SORTED;
+    BY DEPT;
+RUN;
+
+
+DATA IT_EMPLOYEES;
+    SET TEMP;
+    WHERE DEPT = 'IT';
+RUN;
+
+proc sql;
+    select count(*) as Total_Records from Bank;
+quit;
+
+proc print data=Bank (obs=10); /* print sample of 50 rows */
+run;
+
+data Bank;
+    input ACCOUNT SERVICE $ VISIT;
+    datalines;
+500026 CKING 1
+500026 SVG 2
+500026 ATM 3
+500026 ATM 4
+500075 CKING 1
+;
+run;
+
+proc datasets library=AAEM;
+run;
+proc export data=AAEM.BANK
+    outfile="/home/u61577414/BankDataFull.csv"
+    dbms=csv
+    replace;
+run;
+
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+DATA Birth;
+    infile '/home/u61577414/BirthsKingCounty2001.txt';
+	input Gender $ 1-2 Index 3 Age $ 5-6;
+run;
+
+DATA TEMP;
+INPUT ID NAME $ SALARY DEPT $ DOJ DATE9. ;
+FORMAT DOJ DATE9. ;
+DATALINES;
+1 Rick 623.3 IT 02APR2001
+2 Dan 515.2 OPS 11JUL2012
+3 Michelle 611 IT 21OCT2000
+4 Ryan 729 HR 30JUL2012
+5 Gary 843.25 FIN 06AUG2000
+6 Tusar 578 IT 01MAR2009
+7 Pranab 632.8 OPS 16AUG1998
+8 Rasmi 722.5 FIN 13SEP2014
+;
+PROC PRINT DATA = TEMP;
+RUN;
+
+/*Sort by Department*/
+
+PROC SORT DATA=TEMP OUT=TEMP_SORTED;
+    BY DEPT;
+RUN;
+/*2. Filter Employees in IT Department*/
+
+DATA IT_EMPLOYEES;
+    SET TEMP;
+    WHERE DEPT = 'IT';
+RUN;
+/*3. Calculate Years of Service */
+
+DATA TEMP_WITH_YOS;
+    SET TEMP;
+    Years_of_Service = INT((TODAY() - DOJ)/365.25);
+RUN;
+/*4. Get Average Salary by Department */
+
+PROC MEANS DATA=TEMP NOPRINT;
+    CLASS DEPT;
+    VAR SALARY;
+    OUTPUT OUT=AVG_SALARY MEAN=Avg_Salary;
+RUN;
+/*5. Create a New Variable for High/Low Salary */
+
+DATA TEMP_SAL_FLAG;
+    SET TEMP;
+    IF SALARY > 700 THEN SALARY_LEVEL = 'HIGH';
+    ELSE SALARY_LEVEL = 'LOW';
+RUN;
+/*6. List Employees Who Joined After 2010  */
+
+DATA JOINED_AFTER_2010;
+    SET TEMP;
+    IF DOJ > '01JAN2010'd;
+RUN;
+/*7. Frequency of Departments*/
+
+PROC FREQ DATA=TEMP;
+    TABLES DEPT;
+RUN;
+/*8. Find the Maximum and Minimum Salary */
+
+PROC MEANS DATA=TEMP MAX MIN;
+    VAR SALARY;
+RUN;
+/*9. Print Only Selected Variables */
+
+PROC PRINT DATA=TEMP;
+    VAR ID NAME SALARY;
+RUN;
+/* 10. Rename a Variable (e.g., Rename SALARY to EMP_SALARY) */
+
+DATA TEMP_RENAMED;
+    SET TEMP;
+    RENAME SALARY = EMP_SALARY;
+RUN;
+/* 10. Find the Maximum and Minimum Salary */
+PROC MEANS DATA=TEMP MAX MIN;
+    VAR SALARY;
+RUN;
+
+/* 11. Print Only Selected Variables */
+PROC PRINT DATA=TEMP;
+    VAR ID NAME SALARY;
+RUN;
+
+/* 12. Rename Variable: SALARY to EMP_SALARY */
+DATA TEMP_RENAMED;
+    SET TEMP;
+    RENAME SALARY = EMP_SALARY;
+RUN;
+
+/* 13. Sort by Salary in Descending Order */
+PROC SORT DATA=TEMP OUT=TEMP_SORTED_SALARY;
+    BY DESCENDING SALARY;
+RUN;
+
+/* 14. Find Top 3 Highest Paid Employees */
+DATA TOP3;
+    SET TEMP_SORTED_SALARY;
+    IF _N_ <= 3;
+RUN;
+
+/* 15. Count Employees by Department using PROC SQL */
+PROC SQL;
+    SELECT DEPT, COUNT(*) AS Total_Employees
+    FROM TEMP
+    GROUP BY DEPT;
+QUIT;
+
+/* 16. Display Employees with Salary Between 600 and 750 */
+DATA SALARY_RANGE;
+    SET TEMP;
+    IF SALARY BETWEEN 600 AND 750;
+RUN;
+
+/* 17. Create a Custom Format for Salary Level */
+PROC FORMAT;
+    VALUE SALFMT
+        LOW - <600 = 'LOW'
+        600 - <700 = 'MEDIUM'
+        700 - HIGH = 'HIGH';
+RUN;
+
+DATA TEMP_FORMATTED;
+    SET TEMP;
+    FORMAT SALARY SALFMT.;
+RUN;
+
+PROC PRINT DATA=TEMP_FORMATTED;
+RUN;
+
+/* 18. Calculate Monthly Salary */
+DATA TEMP_MONTHLY;
+    SET TEMP;
+    Monthly_Salary = SALARY / 12;
+RUN;
+
+/* 19. Average Years of Service by Department */
+DATA TEMP_YOS;
+    SET TEMP;
+    Years_of_Service = INT((TODAY() - DOJ)/365.25);
+RUN;
+
+PROC MEANS DATA=TEMP_YOS NOPRINT;
+    CLASS DEPT;
+    VAR Years_of_Service;
+    OUTPUT OUT=AVG_YOS MEAN=Avg_YOS;
+RUN;
+
+/* 20. Combine Two Datasets (if TEMP2 exists) */
+/* Uncomment and modify the following if TEMP2 is defined */
+/*
+DATA COMBINED;
+    SET TEMP TEMP2;
+RUN;
+*/
+
+/* 21. Employees Whose Name Starts with 'R' */
+DATA NAME_STARTS_R;
+    SET TEMP;
+    IF SUBSTR(NAME, 1, 1) = 'R';
+RUN;
+
+/* 22. Summary Report Using PROC REPORT */
+PROC REPORT DATA=TEMP NOWD;
+    COLUMN DEPT NAME SALARY;
+    DEFINE DEPT / GROUP;
+    DEFINE NAME / DISPLAY;
+    DEFINE SALARY / ANALYSIS SUM;
+RUN;
+/*Sort it before printing (e.g., by ACCOUNT):
+
+data Bank;
+    input ACCOUNT SERVICE $ VISIT;
+    datalines;
+500026 CKING 1
+500026 SVG 2
+500026 ATM 3
+500026 ATM 4
+500075 CKING 1
+;
+run;
+
+
+*/
+
+data Bank;
+    set AAEM.BANK;
+run;
+
+PROC PRINT DATA = TEMP;
+RUN;
+
+
+PROC SORT DATA=TEMP OUT=TEMP_SORTED;
+    BY DEPT;
+RUN;
+
+
+DATA IT_EMPLOYEES;
+    SET TEMP;
+    WHERE DEPT = 'IT';
+RUN;
+
+proc sql;
+    select count(*) as Total_Records from Bank;
+quit;
+
+proc print data=Bank (obs=10); /* print sample of 50 rows */
+run;
+
+
+
+/* 0. Create Initial Dataset */
+data Bank;
+    input ACCOUNT SERVICE $ VISIT;
+    datalines;
+500026 CKING 1
+500026 SVG 2
+500026 ATM 3
+500026 ATM 4
+500075 CKING 1
+500075 MMDA 2
+500075 SVG 3
+500075 ATM 4
+500075 TRUST 5
+500075 TRUST 6
+;
+run;
+
+/* 1. View All Records */
+proc print data=Bank;
+run;
+
+/* 2. View Dataset Structure */
+proc contents data=Bank;
+run;
+
+/* 3. Frequency Count of SERVICE */
+proc freq data=Bank;
+    tables SERVICE;
+run;
+
+
+/* 4. Summary Statistics of VISIT by SERVICE */
+proc means data=Bank;
+    class SERVICE;
+    var VISIT;
+run;
+
+
+/* 5. Filter CKING Service Only */
+data CKING_Customers;
+    set Bank;
+    where SERVICE = 'CKING';
+run;
+
+
+/* 6. Count Unique Accounts */
+proc sql;
+    select count(distinct ACCOUNT) as Unique_Accounts from Bank;
+quit;
+
+
+/* 7. Add Total_Visits Per Account */
+proc sql;
+    create table Bank_Visits as
+    select ACCOUNT, sum(VISIT) as Total_Visits
+    from Bank
+    group by ACCOUNT;
+quit;
+
+
+/* 8. Export CKING Customers */
+proc export data=CKING_Customers
+    outfile="/home/u61577414/CKING_Customers.csv"
+    dbms=csv
+    replace;
+run;
+
+/* 9. Sort by ACCOUNT, then VISIT */
+proc sort data=Bank out=Bank_Sorted;
+    by ACCOUNT VISIT;
+run;
+
+
+/* 10. Top 5 Accounts by Total Visits */
+proc sql;
+    select ACCOUNT, sum(VISIT) as Total_Visits
+    from Bank
+    group by ACCOUNT
+    order by Total_Visits desc
+    limit 5;
+quit;
+
+
+/* 11. Remove Duplicate Records */
+proc sort data=Bank nodupkey out=Bank_Unique;
+    by ACCOUNT SERVICE VISIT;
+run;
+
+
+/* 12. Categorize VISIT Level */
+data Bank_Category;
+    set Bank;
+    length Visit_Level $10;
+    if VISIT <= 1 then Visit_Level = 'Low';
+    else if VISIT <= 3 then Visit_Level = 'Medium';
+    else Visit_Level = 'High';
+run;
+
+/* 13. Summary Table by SERVICE */
+proc sql;
+    create table Service_Summary as
+    select SERVICE, count(*) as Num_Records, avg(VISIT) as Avg_Visit
+    from Bank
+    group by SERVICE;
+quit;
+
+
+/* 14. Find Accounts Without CKING Service */
+proc sql;
+    create table Non_CKING_Accounts as
+    select distinct ACCOUNT
+    from Bank
+    except
+    select distinct ACCOUNT
+    from Bank
+    where SERVICE = 'CKING';
+quit;
+
+
+/* 15. Transpose SERVICE into Columns (Wide Format) */
+proc transpose data=Bank out=Bank_Wide(drop=_NAME_);
+    by ACCOUNT;
+    id SERVICE;
+    var VISIT;
+run;
+
+
+/* 16. Add Visit_Date as Dummy Date */
+data Bank_WithDate;
+    set Bank;
+    format Visit_Date date9.;
+    Visit_Date = '01JAN2025'd + VISIT;
+run;
+
+
+/* 17. Rank Accounts by Total Visits */
+proc sql;
+    create table Ranked_Accounts as
+    select ACCOUNT, sum(VISIT) as Total_Visit,
+           rank() over (order by calculated Total_Visit desc) as Visit_Rank
+    from Bank
+    group by ACCOUNT;
+quit;
+
+
+/* 18. Create Format for SERVICE Descriptions */
+proc format;
+    value $servicefmt
+        'CKING' = 'Checking'
+        'SVG'   = 'Savings'
+        'ATM'   = 'ATM Usage'
+        'MMDA'  = 'Money Market'
+        'TRUST' = 'Trust Account';
+run;
+
+
+/* 19. Print with SERVICE Format */
+proc print data=Bank;
+    format SERVICE $servicefmt.;
+run;
+
+
+/* 20. Delete Records with VISIT = 0 (none in current data) */
+data Bank_Clean;
+    set Bank;
+    if VISIT > 0;
+run;
+
+
+/* 21. Generate Report with Summary per SERVICE */
+proc report data=Bank nowd;
+    column ACCOUNT SERVICE VISIT;
+    define ACCOUNT / group;
+    define SERVICE / group;
+    define VISIT / sum;
+run;
+
+
+/* 22. Summary of VISIT by ACCOUNT and SERVICE */
+proc sql;
+    create table Visit_Summary as
+    select ACCOUNT, SERVICE, sum(VISIT) as Total_Visit
+    from Bank
+    group by ACCOUNT, SERVICE;
+quit;
+
+
+/* 23. Count Total Rows in Bank */
+proc sql;
+    select count(*) as Total_Records from Bank;
+quit;
+
+
+/* 24. Sample First 10 Records */
+proc print data=Bank (obs=10);
+run;
+
+
+/* 25. Save Full Dataset to CSV */
+proc export data=Bank
+    outfile="/home/u61577414/BankDataFull.csv"
+    dbms=csv
+    replace;
+run;
+
+
+data Bank;
+    input ACCOUNT SERVICE $ VISIT;
+    datalines;
+500026 CKING 1
+500026 SVG 2
+500026 ATM 3
+500026 ATM 4
+500075 CKING 1
+;
+run;
+
+proc datasets library=AAEM;
+run;
+proc export data=AAEM.BANK
+    outfile="/home/u61577414/BankDataFull.csv"
+    dbms=csv
+    replace;
+run;
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+/*Sort it before printing (e.g., by ACCOUNT):
+
+data Bank;
+    input ACCOUNT SERVICE $ VISIT;
+    datalines;
+500026 CKING 1
+500026 SVG 2
+500026 ATM 3
+500026 ATM 4
+500075 CKING 1
+;
+run;
+
+
+*/
+
+data Bank;
+    set AAEM.BANK;
+run;
+
+proc sql;
+    select count(*) as Total_Records from Bank;
+quit;
+
+proc print data=Bank (obs=10); /* print sample of 50 rows */
+run;
+
+data Bank;
+    input ACCOUNT SERVICE $ VISIT;
+    datalines;
+500026 CKING 1
+500026 SVG 2
+500026 ATM 3
+500026 ATM 4
+500075 CKING 1
+;
+run;
+
+proc datasets library=AAEM;
+run;
+proc export data=AAEM.BANK
+    outfile="/home/u61577414/BankDataFull.csv"
+    dbms=csv
+    replace;
+run;
+
+
+
+
+Let me know if you'd like to focus on any specific type of operation (e.g., advanced statistical analysis, visualization, or export).
+
+
+
