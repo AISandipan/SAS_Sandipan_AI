@@ -192,34 +192,6 @@ proc sgplot data=WORK.emp1_sas;
 run;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ----------------------------------Sort by Department------------------------------------------------------------------
 
 PROC SORT DATA=TEMP OUT=TEMP_SORTED;
@@ -1116,7 +1088,75 @@ run;
 
 
 
-Let me know if you'd like to focus on any specific type of operation (e.g., advanced statistical analysis, visualization, or export).
+
+-------------------------------------------------------------Power BI-------------------------------------------------------------------------
+
+Star Schema Overview :
+
+Fact Table: Sales Fact Table
+
+Dimension Tables:
+
+Date Dimension
+
+Product Dimension
+
+Salesperson Dimension
+
+Customer Dimension
+
+Promotion Dimension
+Step 1: Load Tables in Power BI
+
+Load each table (fact and dimensions) into Power BI. Ensure you have the necessary keys:
+
+Fact Table should have foreign keys like:
+
+DateKey
+
+ProductKey
+
+SalespersonKey
+
+CustomerKey
+
+PromotionKey
+
+Each dimension table should have a primary key matching the foreign key in the fact table.
+
+Step 2: Create Relationships
+
+Go to Model view in Power BI and define relationships:
+
+From (Fact Table)	To (Dimension Table)	Type
+SalesFact[DateKey]	Date[DateKey]	One-to-Many
+SalesFact[ProductKey]	Product[ProductKey]	One-to-Many
+SalesFact[SalespersonKey]	Salesperson[SalespersonKey]	One-to-Many
+SalesFact[CustomerKey]	Customer[CustomerKey]	One-to-Many
+SalesFact[PromotionKey]	Promotion[PromotionKey]	One-to-Many
+
+Make sure relationships are single-directional for a standard star schema.
+
+Step 3: Example DAX Measures
+
+Once relationships are set, you can write DAX measures using related dimensions. Example:
+
+Total Sales = SUM(SalesFact[SalesAmount])
+
+Sales by Product = 
+CALCULATE(
+    [Total Sales],
+    Product[ProductName]
+)
+
+Sales by Salesperson = 
+CALCULATE(
+    [Total Sales],
+    Salesperson[SalespersonName]
+)
+
+
+
 
 
 
