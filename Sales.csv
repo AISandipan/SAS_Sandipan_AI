@@ -1,0 +1,53 @@
+﻿Order Date,Category,Region,Sales,Target Sales
+"Tuesday, 12 May 2015",Technology,East,3.21,2.98
+"Thursday, 15 September 2016",Furniture,South,2.34,2.1
+"Monday, 03 July 2017",Office Supplies,Central,1.76,1.65
+"Friday, 09 November 2018",Technology,West,3.45,3.12
+"Saturday, 23 January 2016",Furniture,Central,2.01,1.84
+"Sunday, 05 June 2016",Technology,East,3.33,3
+"Wednesday, 29 March 2017",Office Supplies,South,1.98,1.79
+"Tuesday, 19 July 2016",Furniture,East,2.56,2.33
+"Monday, 14 March 2016",Furniture,South,2.45,2.21
+"Wednesday, 27 July 2016",Technology,Central,3.68,3.42
+"Saturday, 03 September 2016",Office Supplies,East,1.92,1.77
+"Sunday, 18 December 2016",Furniture,West,2.11,1.99
+"Friday, 10 June 2016",Technology,South,3.89,3.66
+"Thursday, 29 October 2015",Office Supplies,Central,1.76,1.62
+"Tuesday, 12 April 2016",Furniture,East,2.28,2.05
+"Monday, 21 August 2017",Technology,East,3.41,3.12
+"Saturday, 09 January 2016",Office Supplies,South,1.63,1.48
+"Thursday, 19 May 2016",Furniture,Central,2.87,2.66
+"Wednesday, 11 May 2016",Technology,West,3.55,3.32
+"Tuesday, 16 February 2016",Office Supplies,West,1.45,1.32
+"Sunday, 30 October 2016",Furniture,South,2.74,2.53
+"Friday, 06 May 2016",Technology,Central,3.64,3.41
+"Monday, 08 February 2016",Office Supplies,East,1.71,1.54
+"Thursday, 22 December 2016",Furniture,West,2.39,2.15
+"Wednesday, 06 July 2016",Technology,South,3.72,3.45
+"Friday, 21 October 2016",Furniture,East,2.33,2.16
+"Tuesday, 15 March 2016",Office Supplies,Central,1.88,1.72
+"Monday, 25 April 2016",Technology,East,3.96,3.71
+"Saturday, 13 August 2016",Furniture,West,2.52,2.31
+"Sunday, 17 July 2016",Office Supplies,South,1.95,1.76
+"Thursday, 18 February 2016",Technology,Central,3.63,3.34
+"Wednesday, 28 December 2016",Furniture,East,2.49,2.22
+"Tuesday, 26 January 2016",Office Supplies,West,1.58,1.43
+"Friday, 11 March 2016",Furniture,South,2.65,2.46
+"Monday, 04 April 2016",Technology,West,3.74,3.49
+"Saturday, 21 May 2016",Office Supplies,East,1.79,1.61
+"Sunday, 03 July 2016",Furniture,Central,2.43,2.25
+"Thursday, 07 April 2016",Technology,South,3.88,3.64
+"Friday, 09 September 2016",Office Supplies,Central,1.67,1.52
+"Wednesday, 25 May 2016",Furniture,East,2.37,2.14
+"Saturday, 30 January 2016",Technology,East,3.45,3.22
+"Monday, 07 March 2016",Office Supplies,South,1.81,1.65
+"Sunday, 15 May 2016",Furniture,West,2.22,2.04
+"Thursday, 10 March 2016",Technology,Central,3.59,3.33
+"Tuesday, 03 May 2016",Office Supplies,East,1.73,1.57
+"Saturday, 04 June 2016",Furniture,Central,2.56,2.34
+"Sunday, 29 May 2016",Technology,East,3.81,3.53
+"Friday, 22 July 2016",Office Supplies,South,1.97,1.78
+"Thursday, 02 June 2016",Furniture,East,2.46,2.25
+"Wednesday, 01 June 2016",Technology,West,3.68,3.42
+"Tuesday, 24 May 2016",Office Supplies,Central,1.69,1.55
+"Monday, 16 May 2016",Furniture,East,2.41,2.19

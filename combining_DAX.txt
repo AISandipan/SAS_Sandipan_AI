@@ -1,0 +1,69 @@
+Combining Clustered and Stacked Column Charts Using DAX and Slicer Logic
+
+Data Preparation in Power BI
+1: Import Dataset
+	•	Open Power BI Desktop
+	•	Load the .csv or .xlsx file containing the Sales data
+
+2: Create Supporting Table (Disconnected Table)
+This table controls the slicer for switching views.
+Axis Data = DATATABLE("Data", STRING, {{"Sales"}, {"Forecast"}})
+Add this to Power BI using Modeling > New Table
+This table is not related to the Sales table (no relationship needed).
+
+3. DAX Measures for Dynamic Charting
+Create the following measures to handle each product category and the target values:
+
+3.1 Sales by Category (for Stacked Chart)
+Sales_Furniture
+Sales_Furniture = 
+SWITCH(
+    SELECTEDVALUE('Axis Data'[Data]),
+    "Sales", 
+    CALCULATE(SUM(Sales[Sales]), Sales[Category] = "Furniture")
+)
+
+
+Sales_Office_Supplies
+Sales_Office_Supplies = 
+SWITCH(
+    SELECTEDVALUE('Axis Data'[Data]),
+    "Sales", 
+    CALCULATE(SUM(Sales[Sales]), Sales[Category] = "Office Supplies")
+)
+Sales_Technology
+Sales_Technology = 
+SWITCH(
+    SELECTEDVALUE('Axis Data'[Data]),
+    "Sales", 
+    CALCULATE(SUM(Sales[Sales]), Sales[Category] = "Technology")
+)
+
+
+3.2 Target Sales (for Clustered Chart)
+Sales_Target_value
+Sales_Target_value = 
+SWITCH(
+    SELECTEDVALUE('Axis Data'[Data]),
+    "Forecast", 
+    SUM(Sales[Target Sales])
+)
+
+4. Building the Combined Chart
+Step-by-Step Instructions:
+1.	Insert a Stacked Column Chart
+2.	Drag Region to the X-axis
+3.	Add the following measures to the Values section:
+ 	o	Sales_Furniture
+	o	Sales_Office_Supplies
+	o	Sales_Technology
+	o	Sales_Target_value
+
+4.	Insert a Slicer visual
+5.	Add Axis Data[Data] to the slicer
+6.	Format the chart:
+	o	Adjust colors for categories
+	o	Label each bar clearly
+	o	Set tooltip if needed
+When "Sales" is selected → chart shows stacked bars by category
+When "Forecast" is selected → chart switches to clustered Target Sales bars
