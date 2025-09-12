@@ -1,0 +1,121 @@
+llama.cpp + llama-cpp-python
+Use Case: Low-latency, offline, private model inference
+ Run Local LLaMA API with llama-cpp-python
+Requirements:
+
+Python 3.8+
+
+A GGUF model (e.g., LLaMA 2, Mistral)
+
+llama-cpp-python package
+
+Step 1: Install llama-cpp-python
+pip install llama-cpp-python[server]
+
+
+If you have a GPU and want speed:
+
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python[server] --force-reinstall --no-cache-dir
+
+
+You need the CUDA toolkit installed for GPU support.
+
+Step 2: Download a GGUF model
+
+Go to https://huggingface.co/TheBloke
+ and download a GGUF version of LLaMA or Mistral (like mistral-7b-instruct-v0.1.Q4_K_M.gguf).
+
+Save it somewhere accessible.
+
+Step 3: Run the API server
+python3 -m llama_cpp.server --model ./models/mistral.gguf --n_ctx 2048
+
+
+This starts a local REST API at http://localhost:8000
+
+Step 4: Call the API from your app
+
+You can use a POST like this:
+
+import requests
+
+def query_llama_locally(prompt):
+    response = requests.post("http://localhost:8000/completion", json={
+        "prompt": prompt,
+        "temperature": 0.5,
+        "max_tokens": 100
+    })
+
+    return response.json()["completion"]
+
+Example prompt:
+prompt = "The person seems sad. Should the video be paused? Answer 'yes' or 'no'."
+answer = query_llama_locally(prompt)
+
+pause = 'yes' in answer.lower()
+
+2. Serverless AWS Lambda Backend for LLM Logic
+
+If you prefer cloud logic, you can build a small Lambda function that decides based on emotion.
+
+This is cheaper and faster than running an LLM, especially if you just need simple logic or call a hosted LLM (like Bedrock or OpenAI) from there.
+
+🛠️ 
+Step-by-Step: Deploy Emotion-Based Decision Lambda
+Step 1: Create a Lambda Function
+
+Go to AWS Lambda Console
+
+Create a new function:
+
+Runtime: Python 3.9 or 3.11
+
+Name: EmotionDecisionHandler
+
+Step 2: Use This Code in Lambda
+import json
+
+def lambda_handler(event, context):
+    emotion = event.get('emotion', 'neutral').lower()
+
+    unhappy = ['angry', 'disgust', 'fear', 'sad']
+    happy = ['happy', 'surprise']
+    
+    if emotion in unhappy:
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'pause': True})
+        }
+    elif emotion in happy:
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'pause': False})
+        }
+    else:
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'pause': False})
+        }
+
+Step 3: Create an API Gateway
+
+Go to Amazon API Gateway and create a HTTP API
+
+Connect it to your Lambda
+
+Deploy the API and get the public URL
+
+Step 4: Call from Your Python Script
+import requests
+
+def call_lambda_decision_api(emotion):
+    payload = {"emotion": emotion}
+    lambda_url = "https://your-api-id.amazonaws.com/default/EmotionDecisionHandler"
+
+    try:
+        response = requests.post(lambda_url, json=payload)
+        result = response.json()
+        return result.get("pause", False)
+    except Exception as e:
+        print(f"[ERROR] Lambda call failed: {e}")
+ 
