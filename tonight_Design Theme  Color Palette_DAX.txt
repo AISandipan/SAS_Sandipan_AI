@@ -1,0 +1,113 @@
+1. Design Theme / Color Palette
+
+To match the visual design from your image:
+
+Color Palette:
+Purpose	Hex Code	Notes
+Primary Yellow	#F6C200	Used for 2022 bars, accents
+Deep Black	#1E1E1E	Used for 2021 bars, icons
+Light Gray	#EDEDED	Background / labels
+Dark Gray (Text)	#4D4D4D	Axis/Label text
+Accent White	#FFFFFF	Card/Visual Background
+
+Stick to flat, minimal design with lots of white space and clear sectioning.
+
+2. DAX Measures for the Dashboard
+
+Here are essential DAX formulas based on what the dashboard is showing:
+
+1. % Vacancies Filled
+Vacancies Filled % = 
+DIVIDE(
+    [Total Hires],
+    [Total Vacancies],
+    0
+)
+
+2. Screening to Hire Ratio
+Screening to Hire Ratio = 
+DIVIDE(
+    [Total Screened],
+    [Total Hires],
+    0
+)
+
+
+You can use a format string like 1 : [Screening to Hire Ratio] in a measure or card.
+
+3. Vacancies by Month
+Vacancies Count = COUNTROWS('VacanciesTable')
+
+
+Use this with a Month-Year column to create the time-series bar chart.
+
+4. Filled Roles by Department
+Filled Roles = CALCULATE(
+    COUNTROWS('HiringTable'),
+    'HiringTable'[Status] = "Hired"
+)
+
+
+You can segment by:
+
+HiringTable[Department]
+
+HiringTable[RoleType] (New/Replacement)
+
+5. Filled Roles by Source
+Filled by Source = 
+CALCULATE(
+    COUNTROWS('HiringTable'),
+    'HiringTable'[Status] = "Hired"
+)
+
+
+Segmented by HiringTable[Source].
+
+6. Organization Level and Position Type
+
+Assume you have columns:
+
+OrgLevel: High, Mid, Operational
+
+PositionType: Perm, Contract, Casual
+
+Filled Roles by OrgLevel = 
+CALCULATE(
+    COUNTROWS('HiringTable'),
+    'HiringTable'[Status] = "Hired"
+)
+
+
+Use as stacked bar chart: Axis = OrgLevel, Legend = PositionType
+
+3. Creating Animated GIF from Power BI
+
+Here’s how you can convert your dashboard into a smooth animated GIF:
+
+Option 1: Using PowerPoint + Snips
+
+Export Power BI Dashboard to PNGs
+Use Bookmarks in Power BI to capture different states (filters, dates, animations).
+
+Import PNGs into PowerPoint
+
+Set transitions between each slide (e.g., Fade or Morph).
+
+Use the same layout and apply motion to only the required visual(s).
+
+Export PowerPoint as GIF:
+
+Go to File > Export > Create an Animated GIF
+
+Set duration per slide (e.g., 2s or 3s)
+
+Option 2: Use Screen Recording Tools
+
+Open Power BI Desktop
+
+Use filters/slicers to change data interactively
+
+Use a screen recorder (e.g., OBS, ShareX, or Camtasia)
+
+Export recording as GIF or video
