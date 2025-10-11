@@ -1,0 +1,116 @@
+
+
+1: Metrics (Top Cards)
+1. Total Cost
+DAX:
+Total Cost = SUM(Sales[Total Cost])
+2. Total Sales
+Total Sales = SUM(Sales[Total Sales])
+3. Total Discount
+Total Discount = SUM(Sales[Total Discount])
+4. Total Profit
+Total Profit = SUM(Sales[Total Profit])
+
+2: Charts
+5. Sum of Total Sales by Region (Pie Chart)
+	Values: Total Sales
+	Legend: Region
+Improved DAX (if you want dynamic title or filtering):
+Sales by Region = 
+CALCULATE(
+    [Total Sales],
+    ALLEXCEPT(Sales, Sales[Region])
+)
+
+6. Sum of Total Cost by State (Bar Chart)
+	Axis: State
+	Values: Total Cost
+DAX (sorted):
+You can sort by descending cost using:
+Total Cost by State = 
+SUM(Sales[Total Cost])
+
+7. Total Cost by Segment (Donut Chart)
+	Legend: Segment
+	Values: Total Cost
+
+8. Profit by Sub-Category (Bar with values)
+This likely uses:
+	Axis: Sub-Category
+	Values: Total Profit
+To create a measure with formatting, use:
+Formatted Profit = 
+FORMAT(SUM(Sales[Total Profit]), "₹#,##0")
+
+3: Table
+9. Table Columns
+	Sub-Category
+	Region
+	State
+	Sum of Total Sales
+	Sum of Total Profit
+	Sum of Total Discount
+	Sum of Total Cost
+Each can be DAX like:
+Sum of Total Sales = SUM(Sales[Total Sales])
+Sum of Total Profit = SUM(Sales[Total Profit])
+Sum of Total Discount = SUM(Sales[Total Discount])
+Sum of Total Cost = SUM(Sales[Total Cost])
+Use Table visual and add each measure into appropriate column.
+
+4: Filters/Slicers
+We are using:
+	Sub-Category
+	Region
+	State
+	Customer Name (or ID)
+These are basic slicers linked to fields in the dataset.
+
+COLOR FORMATTING (THEME)
+You’re using a black background with yellow and orange highlights. You can set up a custom theme JSON to apply this globally.
+Sample Theme JSON:
+{
+  "name": "Dark Yellow Theme",
+  "dataColors": ["#FFC300", "#FF5733", "#C70039", "#900C3F"],
+  "background": "#000000",
+  "foreground": "#FFFFFF",
+  "tableAccent": "#FFC300",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "color": { "solid": { "color": "#FFC300" } },
+        "fontFamily": "Segoe UI",
+        "fontSize": 12
+      }
+    }
+  }
+}
+To apply:
+1.	Go to View > Themes > Browse for Themes in Power BI
+2.	Load this .json file
+ IMPROVED / ADVANCED DAX IDEAS
+1. Profit Margin
+Profit Margin = DIVIDE([Total Profit], [Total Sales], 0)
+2. Top N Sub-Categories by Profit
+Top N SubCategories = 
+TOPN(
+    5,
+    SUMMARIZE(Sales, Sales[Sub-Category], "Profit", [Total Profit]),
+    [Total Profit],
+    DESC
+)
+3. Dynamic Title Example
+Title_SelectedRegion = 
+"Total Sales in " & SELECTEDVALUE(Sales[Region], "All Regions")
+Use this measure in a Card Visual as a dynamic title.
+
+More nice Improvement:-
+1.	Add Trendline Visuals for Sales/Profit over Time
+o	X-axis: Date
+o	Values: [Total Sales] or [Total Profit]
+2.	Use Conditional Formatting in Table
+o	Use color scales for Profit, Sales, etc.
+3.	Add KPIs with up/down arrows
+o	Use KPI visual or UNICHAR for arrow icons:
+4.	Arrow = IF([Profit Change] > 0, UNICHAR(9650), UNICHAR(9660))
+
