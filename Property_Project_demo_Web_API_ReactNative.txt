@@ -1,0 +1,1045 @@
+✅ Project Architecture Overview
+🗂 Projects (Solution Structure)
+RealEstateSolution/
+│
+├── RealEstate.API                  → ASP.NET Core Web API (Controllers)
+├── RealEstate.Application          → Business logic (Services, Interfaces)
+├── RealEstate.Domain               → Entities, Enums, Domain logic
+├── RealEstate.Infrastructure       → DB context, Repositories, EF Core
+├── RealEstate.Contracts            → DTOs (Request/Response models)
+└── RealEstate.Tests                → Unit Tests
+
+1. RealEstate.Domain (Class Library)
+Purpose:
+
+Holds entity classes, value objects, enums, and domain logic.
+
+Example:
+// Entities/Property.cs
+public class Property
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public decimal Price { get; set; }
+    public string Address { get; set; }
+    public PropertyType Type { get; set; }
+    public DateTime ListedDate { get; set; }
+}
+
+public enum PropertyType
+{
+    House,
+    Apartment,
+    Land,
+    Commercial
+}
+
+2. RealEstate.Contracts (Class Library)
+Purpose:
+
+Defines data transfer objects (DTOs) for API input/output.
+
+Example:
+// DTOs/PropertyDto.cs
+public class PropertyDto
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public decimal Price { get; set; }
+    public string Address { get; set; }
+}
+
+// DTOs/CreatePropertyRequest.cs
+public class CreatePropertyRequest
+{
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public decimal Price { get; set; }
+    public string Address { get; set; }
+    public PropertyType Type { get; set; }
+}
+
+3. RealEstate.Application (Class Library)
+Purpose:
+
+Application/business logic, interfaces, service layer.
+
+Example:
+public interface IPropertyService
+{
+    Task<IEnumerable<PropertyDto>> GetAllPropertiesAsync();
+    Task<PropertyDto> GetPropertyByIdAsync(Guid id);
+    Task<Guid> CreatePropertyAsync(CreatePropertyRequest request);
+}
+
+public class PropertyService : IPropertyService
+{
+    private readonly IPropertyRepository _repository;
+
+    public PropertyService(IPropertyRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<IEnumerable<PropertyDto>> GetAllPropertiesAsync()
+    {
+        var properties = await _repository.GetAllAsync();
+        return properties.Select(p => new PropertyDto
+        {
+            Id = p.Id,
+            Title = p.Title,
+            Price = p.Price,
+            Address = p.Address
+        });
+    }
+
+    public async Task<Guid> CreatePropertyAsync(CreatePropertyRequest request)
+    {
+        var property = new Property
+        {
+            Id = Guid.NewGuid(),
+            Title = request.Title,
+            Description = request.Description,
+            Price = request.Price,
+            Address = request.Address,
+            Type = request.Type,
+            ListedDate = DateTime.UtcNow
+        };
+
+        await _repository.AddAsync(property);
+        return property.Id;
+    }
+
+    // GetPropertyByIdAsync implementation...
+}
+
+4. RealEstate.Infrastructure (Class Library)
+Purpose:
+
+Data access logic (EF Core DbContext, repository implementations).
+
+Example:
+public class RealEstateDbContext : DbContext
+{
+    public RealEstateDbContext(DbContextOptions<RealEstateDbContext> options)
+        : base(options) { }
+
+    public DbSet<Property> Properties { get; set; }
+}
+
+public interface IPropertyRepository
+{
+    Task<IEnumerable<Property>> GetAllAsync();
+    Task<Property?> GetByIdAsync(Guid id);
+    Task AddAsync(Property property);
+}
+
+public class PropertyRepository : IPropertyRepository
+{
+    private readonly RealEstateDbContext _context;
+
+    public PropertyRepository(RealEstateDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<IEnumerable<Property>> GetAllAsync()
+        => await _context.Properties.ToListAsync();
+
+    public async Task<Property?> GetByIdAsync(Guid id)
+        => await _context.Properties.FindAsync(id);
+
+    public async Task AddAsync(Property property)
+    {
+        _context.Properties.Add(property);
+        await _context.SaveChangesAsync();
+    }
+}
+
+5. RealEstate.API (ASP.NET Core Web API)
+Purpose:
+
+Main entry point. Controllers and dependency injection config.
+
+Example Controller:
+[ApiController]
+[Route("api/properties")]
+public class PropertiesController : ControllerBase
+{
+    private readonly IPropertyService _propertyService;
+
+    public PropertiesController(IPropertyService propertyService)
+    {
+        _propertyService = propertyService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var properties = await _propertyService.GetAllPropertiesAsync();
+        return Ok(properties);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreatePropertyRequest request)
+    {
+        var id = await _propertyService.CreatePropertyAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id }, null);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var property = await _propertyService.GetPropertyByIdAsync(id);
+        if (property == null) return NotFound();
+        return Ok(property);
+    }
+}
+
+Program.cs or Startup.cs Setup
+builder.Services.AddDbContext<RealEstateDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IPropertyService, PropertyService>();
+
+builder.Services.AddControllers();
+
+🧪 6. RealEstate.Tests (Optional)
+
+Add unit/integration tests using xUnit or NUnit to test your services and controllers.
+
+🛠 Tools & Frameworks
+
+ASP.NET Core 7 or 8
+
+EF Core
+
+AutoMapper (optional for DTO mapping)
+
+Swagger for API docs
+
+SQL Server or PostgreSQL
+
+FluentValidation (optional for request validation)
+
+✅ Benefits of Using Class Libraries
+
+Separation of Concerns: Each layer has a clear responsibility.
+
+Reusability: Domain and Application layers can be reused.
+
+Testability: Easier to write unit tests for services and domain logic.
+
+Scalability: Easily maintain and extend functionality (e.g., add a new feature or service).
+
+If you’d like, I can generate a GitHub-ready solution structure or provide a .zip template of the solution. Just let me know.
+
+You said:
+[ApiController]
+[Route("api/properties")]
+public class PropertiesController : ControllerBase
+{
+    private readonly IPropertyService _propertyService;
+
+    public PropertiesController(IPropertyService propertyService)
+    {
+        _propertyService = propertyService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var properties = await _propertyService.GetAllPropertiesAsync();
+        return Ok(properties);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreatePropertyRequest request)
+    {
+        var id = await _propertyService.CreatePropertyAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id }, null);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var property = await _propertyService.GetPropertyByIdAsync(id);
+        if (property == null) return NotFound();
+        return Ok(property);
+    }
+}    and builder.Services.AddDbContext<RealEstateDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IPropertyService, PropertyService>();
+
+builder.Services.AddControllers();   Please give me aws sql server based connection string.
+ChatGPT said:
+
+To create an AWS SQL Server-based connection string for your ASP.NET Core application, you'll need to fill in specific details from your AWS-hosted SQL Server instance (like Amazon RDS or EC2-hosted SQL Server). Below is the format and a sample connection string for Amazon RDS SQL Server.
+
+🔧 Connection String Format
+"ConnectionStrings": {
+  "DefaultConnection": "Server=<ENDPOINT>,<PORT>;Database=<DATABASE_NAME>;User Id=<USERNAME>;Password=<PASSWORD>;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+}
+
+🧾 Sample Connection String (Amazon RDS SQL Server)
+
+Assuming:
+
+Endpoint: mydb-instance.abc123xyz.us-east-1.rds.amazonaws.com
+
+Port: 1433 (default for SQL Server)
+
+Database Name: RealEstateDb
+
+Username: admin
+
+Password: YourSecurePassword123
+
+"ConnectionStrings": {
+  "DefaultConnection": "Server=mydb-instance.abc123xyz.us-east-1.rds.amazonaws.com,1433;Database=RealEstateDb;User Id=admin;Password=YourSecurePassword123;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+}
+
+
+⚠️ Important Notes:
+
+Replace the placeholder values with your actual RDS settings.
+
+Encrypt=True ensures the traffic is encrypted.
+
+TrustServerCertificate=False is recommended for production. You can set it to True for development if needed.
+
+Store the password securely — ideally in AWS Secrets Manager
+ or use User Secrets
+ during development.
+
+🗂 Where to Add It
+
+In your appsettings.json:
+
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=...;Database=...;User Id=...;Password=...;"
+  }
+}
+
+
+In Program.cs (as you already have):
+
+builder.Services.AddDbContext<RealEstateDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+✅ Test the Connection
+
+Before deploying:
+
+Make sure your SQL Server RDS instance is publicly accessible (or accessible from your VPC).
+
+Check security group rules to allow traffic from your IP (or from your hosting environment).
+
+Ensure SQL Server authentication is enabled on the RDS instance.
+
+Use a tool like SQL Server Management Studio (SSMS) to connect and verify access.
+
+Would you like a script to automatically seed your RDS database with sample property data as well?
+
+You said:
+give full code with that in two codes
+ChatGPT said:
+
+Sure! Here's your full working ASP.NET Core Web API controller and the corresponding Program.cs snippet with an AWS SQL Server connection string — consolidated in two complete code blocks.
+
+🔹 1. Full Controller Code – PropertiesController.cs
+using Microsoft.AspNetCore.Mvc;
+using RealEstate.Application.Interfaces;
+using RealEstate.Contracts.DTOs;
+
+namespace RealEstate.API.Controllers
+{
+    [ApiController]
+    [Route("api/properties")]
+    public class PropertiesController : ControllerBase
+    {
+        private readonly IPropertyService _propertyService;
+
+        public PropertiesController(IPropertyService propertyService)
+        {
+            _propertyService = propertyService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var properties = await _propertyService.GetAllPropertiesAsync();
+            return Ok(properties);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreatePropertyRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var id = await _propertyService.CreatePropertyAsync(request);
+            return CreatedAtAction(nameof(GetById), new { id }, null);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var property = await _propertyService.GetPropertyByIdAsync(id);
+            if (property == null) return NotFound();
+            return Ok(property);
+        }
+    }
+}
+
+🔹 2. Program Setup with AWS SQL Server Connection – Program.cs
+using Microsoft.EntityFrameworkCore;
+using RealEstate.Application.Interfaces;
+using RealEstate.Application.Services;
+using RealEstate.Infrastructure.Data;
+using RealEstate.Infrastructure.Repositories;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// ✅ Add AWS SQL Server connection string
+builder.Services.AddDbContext<RealEstateDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ✅ Register dependencies
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+builder.Services.AddScoped<IPropertyService, PropertyService>();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
+
+🔹 appsettings.json – Example for AWS SQL Server Connection
+
+Make sure this is added to your appsettings.json:
+
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=mydb-instance.abc123xyz.us-east-1.rds.amazonaws.com,1433;Database=RealEstateDb;User Id=admin;Password=YourSecurePassword123;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+  }
+}
+
+
+🛡️ Warning: Never store production credentials in plain text. Use AWS Secrets Manager, Azure Key Vault, or User Secrets in development.
+
+🧱 What's Expected to Exist
+
+The code above assumes you have the following in place:
+
+A RealEstateDbContext class (DbContext) in your Infrastructure layer.
+
+A Property entity in your Domain layer.
+
+Interfaces like IPropertyService, IPropertyRepository.
+
+DTOs like CreatePropertyRequest, PropertyDto.
+
+If you want those too, just let me know — I can provide the entire minimal project structure.
+
+Would you like a downloadable .zip or GitHub-ready template next?
+
+You said:
+react native add to cart communicate with web api Asp.net core  I want that with nice layout of React-Native
+ChatGPT said:
+
+Here’s a sample full-stack sketch of how you can do “Add to Cart” in React Native + ASP.NET Core Web API, with a “nice layout” on the React Native side and backend endpoints to support it.
+
+I’ll provide:
+
+Backend (ASP.NET Core) part: controller, models, service, etc.
+
+React Native frontend: screens/components, API calls, layout, state management.
+
+You can adapt it to your project structure (Domain / Application / Infrastructure, etc.).
+
+1. Backend (ASP.NET Core Web API)
+
+Let’s assume you already have your Property entity etc. We will add support for a Cart (or “ShoppingCart”) and endpoints like “Add to Cart”, “Get Cart Items”, “Remove from Cart”, etc.
+
+a) Domain / Models
+// Domain / Entities / CartItem.cs
+public class CartItem
+{
+    public Guid Id { get; set; }
+
+    public Guid CartId { get; set; }
+    public Guid PropertyId { get; set; }
+    public int Quantity { get; set; }
+
+    // Navigation
+    public Property Property { get; set; }
+}
+
+// Domain / Entities / Cart.cs
+public class Cart
+{
+    public Guid Id { get; set; }
+    public DateTime CreatedOn { get; set; }
+
+    public ICollection<CartItem> Items { get; set; } = new List<CartItem>();
+}
+
+b) DTOs / Contracts
+// Contracts / DTOs / AddToCartRequest.cs
+public class AddToCartRequest
+{
+    public Guid CartId { get; set; }        // you may generate one if new
+    public Guid PropertyId { get; set; }
+    public int Quantity { get; set; }
+}
+
+// Contracts / DTOs / CartDto.cs
+public class CartDto
+{
+    public Guid CartId { get; set; }
+    public List<CartItemDto> Items { get; set; }
+}
+
+public class CartItemDto
+{
+    public Guid PropertyId { get; set; }
+    public string Title { get; set; }
+    public decimal Price { get; set; }
+    public int Quantity { get; set; }
+}
+
+c) Repository / Service Layer
+// Infrastructure / Repositories / ICartRepository.cs
+public interface ICartRepository
+{
+    Task<Cart> GetCartAsync(Guid cartId);
+    Task<Cart> CreateCartAsync();
+    Task AddOrUpdateItemAsync(Guid cartId, Guid propertyId, int qty);
+    Task RemoveItemAsync(Guid cartId, Guid propertyId);
+}
+
+// Infrastructure / Repositories / CartRepository.cs
+public class CartRepository : ICartRepository
+{
+    private readonly RealEstateDbContext _db;
+
+    public CartRepository(RealEstateDbContext db)
+    {
+        _db = db;
+    }
+
+    public async Task<Cart> CreateCartAsync()
+    {
+        var cart = new Cart { Id = Guid.NewGuid(), CreatedOn = DateTime.UtcNow };
+        _db.Carts.Add(cart);
+        await _db.SaveChangesAsync();
+        return cart;
+    }
+
+    public async Task<Cart> GetCartAsync(Guid cartId)
+    {
+        return await _db.Carts
+            .Include(c => c.Items)
+              .ThenInclude(i => i.Property)
+            .FirstOrDefaultAsync(c => c.Id == cartId);
+    }
+
+    public async Task AddOrUpdateItemAsync(Guid cartId, Guid propertyId, int qty)
+    {
+        var cart = await GetCartAsync(cartId);
+        if (cart == null)
+        {
+            cart = await CreateCartAsync();
+        }
+
+        var existing = cart.Items.FirstOrDefault(i => i.PropertyId == propertyId);
+        if (existing != null)
+        {
+            existing.Quantity += qty;
+        }
+        else
+        {
+            cart.Items.Add(new CartItem
+            {
+                Id = Guid.NewGuid(),
+                CartId = cart.Id,
+                PropertyId = propertyId,
+                Quantity = qty
+            });
+        }
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task RemoveItemAsync(Guid cartId, Guid propertyId)
+    {
+        var cart = await GetCartAsync(cartId);
+        if (cart == null) return;
+
+        var existing = cart.Items.FirstOrDefault(i => i.PropertyId == propertyId);
+        if (existing != null)
+        {
+            _db.Remove(existing);
+            await _db.SaveChangesAsync();
+        }
+    }
+}
+
+d) Service Layer & Interface
+// Application / Interfaces / ICartService.cs
+public interface ICartService
+{
+    Task<CartDto> GetCartAsync(Guid cartId);
+    Task<Guid> AddToCartAsync(AddToCartRequest request);
+    Task RemoveFromCartAsync(Guid cartId, Guid propertyId);
+}
+
+// Application / Services / CartService.cs
+public class CartService : ICartService
+{
+    private readonly ICartRepository _repo;
+
+    public CartService(ICartRepository repo)
+    {
+        _repo = repo;
+    }
+
+    public async Task<Guid> AddToCartAsync(AddToCartRequest request)
+    {
+        await _repo.AddOrUpdateItemAsync(request.CartId, request.PropertyId, request.Quantity);
+        return request.CartId;
+    }
+
+    public async Task RemoveFromCartAsync(Guid cartId, Guid propertyId)
+    {
+        await _repo.RemoveItemAsync(cartId, propertyId);
+    }
+
+    public async Task<CartDto> GetCartAsync(Guid cartId)
+    {
+        var cart = await _repo.GetCartAsync(cartId);
+        if (cart == null)
+        {
+            return new CartDto
+            {
+                CartId = cartId,
+                Items = new List<CartItemDto>()
+            };
+        }
+
+        var dto = new CartDto
+        {
+            CartId = cart.Id,
+            Items = cart.Items.Select(i => new CartItemDto
+            {
+                PropertyId = i.PropertyId,
+                Title = i.Property.Title,
+                Price = i.Property.Price,
+                Quantity = i.Quantity
+            }).ToList()
+        };
+        return dto;
+    }
+}
+
+e) Controller
+[ApiController]
+[Route("api/cart")]
+public class CartController : ControllerBase
+{
+    private readonly ICartService _cartService;
+
+    public CartController(ICartService cartService)
+    {
+        _cartService = cartService;
+    }
+
+    [HttpGet("{cartId}")]
+    public async Task<IActionResult> GetCart(Guid cartId)
+    {
+        var cart = await _cartService.GetCartAsync(cartId);
+        return Ok(cart);
+    }
+
+    [HttpPost("add")]
+    public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest req)
+    {
+        if (req.Quantity <= 0)
+            return BadRequest("Quantity must be > 0.");
+
+        var cartId = await _cartService.AddToCartAsync(req);
+        return Ok(new { cartId });    // return cartId so client can store/use it
+    }
+
+    [HttpDelete("{cartId}/remove/{propertyId}")]
+    public async Task<IActionResult> RemoveItem(Guid cartId, Guid propertyId)
+    {
+        await _cartService.RemoveFromCartAsync(cartId, propertyId);
+        return NoContent();
+    }
+}
+
+f) Register in Program.cs
+
+Add:
+
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
+
+
+Also in your RealEstateDbContext, include:
+
+public DbSet<Cart> Carts { get; set; }
+public DbSet<CartItem> CartItems { get; set; }
+
+
+Run migrations to update schema.
+
+2. React Native Frontend
+
+Here’s a simplified React Native app (using functional components + hooks) for:
+
+Listing properties
+
+Showing a property detail with “Add to Cart”
+
+Cart screen
+
+Communicating with backend via fetch / axios
+
+Storing the cartId locally (so same cart persists)
+
+You can style & improve layout as you like.
+
+a) Setup
+
+Install packages:
+
+npm install axios @react-native-async-storage/async-storage
+
+b) API client (api.js)
+import axios from 'axios';
+
+const API_BASE = 'https://your-api-domain.com/api';  // your backend URL
+
+export const api = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+c) Cart context (CartContext.js)
+import React, { createContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from './api';
+
+export const CartContext = createContext();
+
+export const CartProvider = ({ children }) => {
+  const [cartId, setCartId] = useState(null);
+  const [cart, setCart] = useState({ items: [] });
+
+  useEffect(() => {
+    (async () => {
+      const stored = await AsyncStorage.getItem('cartId');
+      if (stored) {
+        setCartId(stored);
+        await loadCart(stored);
+      } else {
+        // optionally create new cart on first use: but our backend “add to cart” will accept null
+      }
+    })();
+  }, []);
+
+  async function loadCart(id) {
+    try {
+      const resp = await api.get(`/cart/${id}`);
+      setCart(resp.data);
+    } catch (err) {
+      console.error('Load cart error', err);
+    }
+  }
+
+  async function addToCart(propertyId, qty = 1) {
+    const req = {
+      cartId: cartId || '00000000-0000-0000-0000-000000000000',  // dummy if null, backend should handle
+      propertyId,
+      quantity: qty
+    };
+    const resp = await api.post('/cart/add', req);
+    const newCartId = resp.data.cartId;
+    if (!cartId) {
+      setCartId(newCartId);
+      await AsyncStorage.setItem('cartId', newCartId);
+    }
+    await loadCart(newCartId);
+  }
+
+  async function removeFromCart(propertyId) {
+    if (!cartId) return;
+    await api.delete(`/cart/${cartId}/remove/${propertyId}`);
+    await loadCart(cartId);
+  }
+
+  return (
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart }}>
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+d) App / Navigation Setup
+// App.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+import { CartProvider } from './CartContext';
+import PropertyList from './PropertyList';
+import PropertyDetail from './PropertyDetail';
+import CartScreen from './CartScreen';
+
+const Stack = createStackNavigator();
+
+export default function App() {
+  return (
+    <CartProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="List">
+          <Stack.Screen name="List" component={PropertyList} />
+          <Stack.Screen name="Detail" component={PropertyDetail} />
+          <Stack.Screen name="Cart" component={CartScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CartProvider>
+  );
+}
+
+e) PropertyList.js
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { api } from './api';
+
+export default function PropertyList({ navigation }) {
+  const [propsList, setPropsList] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const resp = await api.get('/properties');
+        setPropsList(resp.data);
+      } catch (err) {
+        console.error('Load properties', err);
+      }
+    })();
+  }, []);
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('Detail', { property: item })}
+    >
+      <Text style={styles.title}>{item.title}</Text>
+      <Text style={styles.price}>Price: {item.price}</Text>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={propsList}
+        keyExtractor={i => i.id}
+        renderItem={renderItem}
+      />
+      <TouchableOpacity
+        style={styles.cartBtn}
+        onPress={() => navigation.navigate('Cart')}
+      >
+        <Text style={{ color: 'white' }}>Go to Cart</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16 },
+  card: {
+    padding: 16,
+    marginVertical: 8,
+    backgroundColor: '#fff',
+    elevation: 3,
+    borderRadius: 8
+  },
+  title: { fontSize: 18, fontWeight: 'bold' },
+  price: { marginTop: 8 },
+  cartBtn: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    backgroundColor: 'blue',
+    padding: 16,
+    borderRadius: 50
+  }
+});
+
+f) PropertyDetail.js
+import React, { useContext, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { CartContext } from './CartContext';
+
+export default function PropertyDetail({ route }) {
+  const { property } = route.params;
+  const { addToCart } = useContext(CartContext);
+  const [loading, setLoading] = useState(false);
+
+  const handleAdd = async () => {
+    setLoading(true);
+    await addToCart(property.id, 1);
+    setLoading(false);
+    alert('Added to cart');
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{property.title}</Text>
+      <Text style={styles.price}>Price: {property.price}</Text>
+      <Text style={styles.desc}>{property.description}</Text>
+
+      <TouchableOpacity
+        style={[styles.btn, loading && styles.btnDisabled]}
+        onPress={handleAdd}
+        disabled={loading}
+      >
+        <Text style={styles.btnText}>
+          {loading ? 'Adding...' : 'Add to Cart'}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 24 },
+  title: { fontSize: 24, fontWeight: 'bold' },
+  price: { fontSize: 20, marginVertical: 16 },
+  desc: { fontSize: 16, color: '#666' },
+  btn: {
+    backgroundColor: 'green',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 24,
+    alignItems: 'center'
+  },
+  btnDisabled: {
+    backgroundColor: '#999'
+  },
+  btnText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold'
+  }
+});
+
+g) CartScreen.js
+import React, { useContext } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { CartContext } from './CartContext';
+
+export default function CartScreen() {
+  const { cart, removeFromCart } = useContext(CartContext);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.itemRow}>
+      <View>
+        <Text style={styles.itemTitle}>{item.title}</Text>
+        <Text>Price: {item.price}</Text>
+        <Text>Qty: {item.quantity}</Text>
+      </View>
+      <TouchableOpacity
+        style={styles.removeBtn}
+        onPress={() => removeFromCart(item.propertyId)}
+      >
+        <Text style={{ color: 'white' }}>Remove</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {cart.items.length === 0 ? (
+        <Text>Your cart is empty.</Text>
+      ) : (
+        <>
+          <FlatList
+            data={cart.items}
+            keyExtractor={i => i.propertyId.toString()}
+            renderItem={renderItem}
+          />
+          <View style={styles.totalRow}>
+            <Text style={styles.totalText}>
+              Total Items: {cart.items.reduce((a,b) => a + b.quantity, 0)}
+            </Text>
+          </View>
+        </>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16 },
+  itemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    padding: 16,
+    marginVertical: 8,
+    borderRadius: 8,
+    elevation: 2
+  },
+  itemTitle: { fontSize: 18, fontWeight: 'bold' },
+  removeBtn: {
+    backgroundColor: 'red',
+    padding: 12,
+    borderRadius: 8,
+    justifyContent: 'center'
+  },
+  totalRow: {
+    marginTop: 24,
+    alignItems: 'flex-end'
+  },
+  totalText: { fontSize: 18, fontWeight: 'bold' }
+});
+
+🧪 How It Works End-to-End
+
+On first use, the React Native app checks if a cartId is stored in AsyncStorage. If yes, it loads the cart from backend.
+
+When user taps Add to Cart on a property detail screen:
+
+The app calls POST /api/cart/add with { cartId, propertyId, quantity }.
+
+Backend adds or updates cart item, returns cartId.
+
+App updates stored cartId (if new) and reloads the cart.
+
+The app shows cart items via GET /api/cart/{cartId}.
+
+Remove is similarly done via DELETE /api/cart/{cartId}/remove/{propertyId}.
