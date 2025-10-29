@@ -1,0 +1,81 @@
+1.Data Type Mismatch
+Check if the MonthStartDate column in Power BI is of Date type (not text).
+
+Sometimes, Power BI automatically sets it to “Text” on import, which breaks relationships with the Calendar table.
+
+Solutions:
+Go to Power Query → MonthStartDate column → Data Type → Date (not “Any” or “Text”).
+Then Close & Apply again.
+
+2. Relationship Issue
+If the slicer (from the Calendar table) doesn’t filter the main table, the relationship might be:
+
+Missing Inactive Wrong direction
+
+Based on different columns (e.g., Month text instead of Date)
+
+Solutions:
+
+Go to Model view.
+
+Ensure:
+
+Sheet2[MonthStartDate] → CalendarTable[Date]
+
+Relationship is Many-to-One (Sheet2 → CalendarTable)
+
+The relationship is Active (solid line, not dashed).
+
+Cross-filter direction is Single (Calendar → Sales).
+
+3. Different Power Query Steps
+On another system, the other person might have accidentally:
+
+Not unpivoted the data correctly (e.g., including “Total” column).
+
+Not renamed columns exactly as expected.
+
+Used a different date formula.
+
+Solutions:
+Double-check their Power Query applied steps — it should be exactly:
+
+Unpivot columns (January–December).
+
+Rename columns → “Month” and “SalesAmount”.
+
+Add Custom Column:
+
+= #date(2025, Date.Month(Date.FromText([Month] & " 1")), 1)
+Rename that → MonthStartDate.
+
+Set to Date type.
+
+4. Calendar Table Problem
+If their Calendar table:
+
+Doesn’t include all dates (e.g., missing 2025 dates),
+
+Or is disconnected from the same range as your MonthStartDate column,
+then slicers won’t match.
+
+Solutions:
+Make sure the Calendar table covers all dates for 2025:
+Table = CALENDARAUTO()
+Month = FORMAT('Table'[Date], "MMMM")
+
+CalendarTable = CALENDAR(DATE(2025,1,1), DATE(2025,12,31))
+5. Slicer Field Source
+Check that the slicer uses CalendarTable[Month] or CalendarTable[Date], not the Month from the Sales table.
+If they accidentally use the wrong field, visuals won’t sync properly.
+
+Quick Test
+To verify quickly on their system:
+
+Add a table visual.
+
+Drag in MonthStartDate (from Sheet2) and Date (from CalendarTable).
+If dates match, relationship works.
+If not, we will see mismatches — that’s the cause.
+
+
