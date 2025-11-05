@@ -1,0 +1,200 @@
+
+
+
+Step 1: Create a Free Snowflake Account
+
+Go to https://signup.snowflake.com/
+
+Choose your preferred cloud provider (AWS, Azure, or Google Cloud).
+
+Fill out the form and create a free trial account — you’ll get $400 in free credits for 30 days.
+
+You’ll receive an email with your Snowflake trial URL — something like:  is it mandatory Choose your preferred cloud provider (AWS, Azure, or Google Cloud)  as I have to create Azure account ?
+
+Step 1: Create a Free Snowflake Account
+
+Go to  https://signup.snowflake.com/
+
+Choose your preferred cloud provider (AWS, Azure, or Google Cloud).
+
+Fill out the form and create a free trial account — you’ll get $400 in free credits for 30 days.  
+-The Snowflake free trial runs for 30 days or until you use up $400 credits — perfect for Power BI testing.
+
+---> create the Raw Menu Table
+CREATE OR REPLACE TABLE MENU
+(
+    menu_id NUMBER(19,0),
+    menu_type_id NUMBER(38,0),
+    menu_type VARCHAR(16777216),
+    truck_brand_name VARCHAR(16777216),
+    menu_item_id NUMBER(38,0),
+    menu_item_name VARCHAR(16777216),
+    item_category VARCHAR(16777216),
+    item_subcategory VARCHAR(16777216),
+    cost_of_goods_usd NUMBER(38,4),
+    sale_price_usd NUMBER(38,4),
+    menu_item_health_metrics_obj VARIANT
+);  
+
+Option 2 — Insert JSON as a String
+
+If you just need demo data and don’t need to query JSON keys, you can insert it as a string:
+
+INSERT INTO MENU VALUES
+(1, 101, 'Food Truck Menu', 'TastyTaco', 1001, 'Beef Taco', 
+ 'Main Course', 'Mexican', 2.50, 7.99, 
+ '{"calories": 350, "protein_g": 20, "fat_g": 15, "carbs_g": 30}'); 
+
+---> create the Raw Menu Table
+CREATE OR REPLACE TABLE MENU
+(
+    menu_id NUMBER(19,0),
+    menu_type_id NUMBER(38,0),
+    menu_type VARCHAR(16777216),
+    truck_brand_name VARCHAR(16777216),
+    menu_item_id NUMBER(38,0),
+    menu_item_name VARCHAR(16777216),
+    item_category VARCHAR(16777216),
+    item_subcategory VARCHAR(16777216),
+    cost_of_goods_usd NUMBER(38,4),
+    sale_price_usd NUMBER(38,4),
+    menu_item_health_metrics_obj VARIANT
+);
+INSERT INTO MENU VALUES
+(1, 101, 'Food Truck Menu', 'TastyTaco', 1001, 'Beef Taco', 
+ 'Main Course', 'Mexican', 2.50, 7.99, 
+ '{"calories": 350, "protein_g": 20, "fat_g": 15, "carbs_g": 30}');  
+
+INSERT INTO MENU
+SELECT 1, 101, 'Food Truck Menu', 'TastyTaco', 1001, 'Beef Taco', 
+       'Main Course', 'Mexican', 2.50, 7.99,
+       PARSE_JSON('{"calories": 350, "protein_g": 20, "fat_g": 15, "carbs_g": 30}');   
+
+Connection with Power BI
+
+In the Server box, enter your Snowflake account URL (without “https://”), for example:
+
+xy12345.us-east-1.snowflakecomputing.com
+
+
+Enter your Warehouse name.
+
+Click OK.
+
+Best Practice
+If you’re adding many rows, use 
+
+
+-- 2
+INSERT INTO MENU
+SELECT 2, 101, 'Food Truck Menu', 'TastyTaco', 1002, 'Chicken Quesadilla',
+       'Main Course', 'Mexican', 3.20, 8.99,
+       PARSE_JSON('{"calories": 420, "protein_g": 25, "fat_g": 18, "carbs_g": 40}');
+
+-- 3
+INSERT INTO MENU
+SELECT 3, 102, 'Dessert Truck Menu', 'SweetTreats', 2001, 'Chocolate Cupcake',
+       'Dessert', 'Bakery', 0.90, 3.50,
+       PARSE_JSON('{"calories": 270, "sugar_g": 24, "fat_g": 12}');
+
+-- 4
+INSERT INTO MENU
+SELECT 4, 102, 'Dessert Truck Menu', 'SweetTreats', 2002, 'Vanilla Ice Cream',
+       'Dessert', 'Frozen', 0.80, 3.99,
+       PARSE_JSON('{"calories": 250, "sugar_g": 28, "fat_g": 10}');
+
+-- 5
+INSERT INTO MENU
+SELECT 5, 103, 'Drinks Truck Menu', 'CoolDrinks', 3001, 'Mango Smoothie',
+       'Beverage', 'Cold Drink', 1.50, 5.99,
+       PARSE_JSON('{"calories": 180, "sugar_g": 32, "vitamin_c_mg": 40}');
+
+-- 6
+INSERT INTO MENU
+SELECT 6, 103, 'Drinks Truck Menu', 'CoolDrinks', 3002, 'Cold Brew Coffee',
+       'Beverage', 'Coffee', 1.10, 4.99,
+       PARSE_JSON('{"calories": 25, "caffeine_mg": 180, "sugar_g": 2}');
+
+-- 7
+INSERT INTO MENU
+SELECT 7, 104, 'Healthy Truck Menu', 'FitEats', 4001, 'Quinoa Salad Bowl',
+       'Main Course', 'Salad', 3.40, 9.99,
+       PARSE_JSON('{"calories": 320, "protein_g": 14, "fiber_g": 8, "fat_g": 10}');
+
+-- 8
+INSERT INTO MENU
+SELECT 8, 104, 'Healthy Truck Menu', 'FitEats', 4002, 'Grilled Chicken Wrap',
+       'Main Course', 'Wraps', 2.90, 8.49,
+       PARSE_JSON('{"calories": 380, "protein_g": 28, "carbs_g": 30, "fat_g": 12}');
+
+-- 9
+INSERT INTO MENU
+SELECT 9, 105, 'Breakfast Truck Menu', 'MorningBite', 5001, 'Egg Sandwich',
+       'Breakfast', 'Sandwich', 1.60, 5.49,
+       PARSE_JSON('{"calories": 310, "protein_g": 18, "carbs_g": 28, "fat_g": 14}');
+
+-- 10
+INSERT INTO MENU
+SELECT 10, 105, 'Breakfast Truck Menu', 'MorningBite', 5002, 'Avocado Toast',
+       'Breakfast', 'Toast', 1.80, 6.99,
+       PARSE_JSON('{"calories": 290, "protein_g": 8, "fiber_g": 6, "fat_g": 16}');
+
+-- 11
+INSERT INTO MENU
+SELECT 11, 106, 'Gourmet Burger Menu', 'BurgerBlast', 6001, 'Classic Beef Burger',
+       'Main Course', 'Burger', 3.80, 10.99,
+       PARSE_JSON('{"calories": 520, "protein_g": 30, "carbs_g": 35, "fat_g": 25}');
+
+Where the Snowflake Account URL Comes From
+
+When you sign up for Snowflake (trial or paid), you get an account URL in the welcome email or on the web interface.
+
+It usually looks like this:
+
+https://<account_identifier>.<region>.<cloud_provider>.snowflakecomputing.com
+
+
+Examples:
+
+https://xy12345.us-east-1.snowflakecomputing.com → AWS in US East
+
+https://abcd1234.east-us-2.azure.snowflakecomputing.com → Azure in East US
+
+https://pqrs5678.gcp-northamerica1.snowflakecomputing.com → GCP in North America
+
+-What to Enter in Power BI
+
+In Power BI Desktop, do not include https:// — only the domain part.
+
+For example, if your Snowflake URL is:
+
+https://xy12345.us-east-1.snowflakecomputing.com
+
+
+Then in Power BI, enter:
+
+xy12345.us-east-1.snowflakecomputing.com
+
+-How to Find It
+
+Option A — From Snowflake UI
+
+Log in to Snowflake at https://app.snowflake.com
+
+Look at the browser’s address bar.
+
+Example: https://xy12345.us-east-1.snowflakecomputing.com/console
+
+Your account URL is: xy12345.us-east-1.snowflakecomputing.com
+
+Option B — From Welcome Email
+
+Snowflake trial emails contain a line like:
+
+Your account is ready at: https://xy12345.us-east-1.snowflakecomputing.com
+
+
+Just copy the part after https://
+
+Then Add your WareHouse-
+and Database name-
