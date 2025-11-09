@@ -1,0 +1,76 @@
+
+
+{
+  "agent_name": "Healthcare_Assistant_Agent",
+  "description": "An Agentic AI assistant that anticipates clinical decisions, monitors patient data, and assists healthcare professionals responsibly.",
+  "version": "1.0",
+  "model": {
+    "type": "llm",
+    "provider": "LlamaCpp",
+    "model_path": "models/llama-3-8b-instruct.gguf",
+    "parameters": {
+      "temperature": 0.2,
+      "max_tokens": 512
+    }
+  },
+  "capabilities": [
+    "clinical_reasoning",
+    "ehr_data_integration",
+    "alert_generation",
+    "ethical_auditing"
+  ],
+  "tools": [
+    {
+      "name": "PatientSummary",
+      "description": "Retrieve EHR summary and vital statistics for a patient.",
+      "endpoint": "local_function:get_patient_summary",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "description": "Unique identifier for patient"
+          }
+        },
+        "required": ["patient_id"]
+      }
+    },
+    {
+      "name": "AlertPhysician",
+      "description": "Send an alert message to physician with context and urgency level.",
+      "endpoint": "local_function:alert_physician",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Alert text to send"
+          }
+        },
+        "required": ["message"]
+      }
+    }
+  ],
+  "policies": {
+    "ethical_constraints": {
+      "requires_human_approval": true,
+      "log_decisions": true,
+      "bias_check_enabled": true
+    },
+    "safety_rules": [
+      "Agent must not provide final medical diagnosis.",
+      "All alerts must include rationale and supporting evidence.",
+      "Sensitive data must be anonymized before LLM processing."
+    ]
+  },
+  "interaction": {
+    "type": "zero-shot-react-description",
+    "verbosity": "high",
+    "explainability_mode": true
+  },
+  "metadata": {
+    "created_by": "Midnight Vibes AI Lab",
+    "created_at": "2025-11-09",
+    "context": "Prototype for Agentic AI in Healthcare"
+  }
+}
