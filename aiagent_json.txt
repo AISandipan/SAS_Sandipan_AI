@@ -1,0 +1,166 @@
+{
+  "nodes": [
+    {
+      "id": "telegram_trigger",
+      "type": "trigger",
+      "provider": "telegram",
+      "name": "Telegram Trigger",
+      "params": {
+        "event": "message"
+      },
+      "outputs": ["switch_node"]
+    },
+    {
+      "id": "switch_node",
+      "type": "switch",
+      "name": "Switch Mode",
+      "params": {
+        "rules": ["voice", "text"]
+      },
+      "outputs": {
+        "voice": "telegram_getfile",
+        "text": "edit_fields"
+      }
+    },
+    {
+      "id": "telegram_getfile",
+      "type": "telegram.getFile",
+      "name": "Telegram Get File",
+      "outputs": ["openai_transcribe"]
+    },
+    {
+      "id": "openai_transcribe",
+      "type": "openai.audio.transcribe",
+      "name": "OpenAI Transcribe Recording",
+      "params": {
+        "model": "gpt-4o-transcribe"
+      },
+      "outputs": ["edit_fields"]
+    },
+    {
+      "id": "edit_fields",
+      "type": "manualEdit",
+      "name": "Edit Fields",
+      "outputs": ["ai_agent"]
+    },
+    {
+      "id": "ai_agent",
+      "type": "agent",
+      "name": "AI Agent",
+      "params": {
+        "model": "gpt-4.1",
+        "tools": [
+          "google_calendar_get_events",
+          "google_calendar_create_event",
+          "gmail_get_emails",
+          "gmail_send_email",
+          "todoist_get_today_tasks",
+          "todoist_create_task",
+          "create_flux_image",
+          "create_note",
+          "vector_store_tool"
+        ],
+        "memory": "window_buffer_memory"
+      },
+      "outputs": ["telegram_send"]
+    },
+    {
+      "id": "telegram_send",
+      "type": "telegram.sendMessage",
+      "name": "Telegram Send Message",
+      "outputs": []
+    },
+
+    /* ------- MEMORY CONFIG ------- */
+
+    {
+      "id": "window_buffer_memory",
+      "type": "memory.windowBuffer",
+      "name": "Window Buffer Memory",
+      "params": {
+        "k": 10
+      },
+      "outputs": ["vector_store_tool"]
+    },
+    {
+      "id": "vector_store_tool",
+      "type": "tool.vector_store",
+      "name": "Vector Store Tool",
+      "params": {
+        "store": "pinecone_vectorstore"
+      },
+      "outputs": ["pinecone_vectorstore"]
+    },
+    {
+      "id": "pinecone_vectorstore",
+      "type": "vectorstore.pinecone",
+      "name": "Pinecone Vector Store",
+      "params": {
+        "index": "agent_memory",
+        "environment": "us-east1",
+        "embedding_model": "text-embedding-3-large"
+      },
+      "outputs": ["openai_embeddings"]
+    },
+    {
+      "id": "openai_embeddings",
+      "type": "openai.embedding",
+      "name": "OpenAI Embeddings",
+      "params": {
+        "model": "text-embedding-3-large"
+      },
+      "outputs": []
+    },
+
+    /* ------- TOOL NODES ------- */
+
+    {
+      "id": "google_calendar_get_events",
+      "type": "google.calendar.getEvents",
+      "name": "Get Events",
+      "outputs": []
+    },
+    {
+      "id": "google_calendar_create_event",
+      "type": "google.calendar.createEvent",
+      "name": "Create Calendar Event",
+      "outputs": []
+    },
+    {
+      "id": "gmail_get_emails",
+      "type": "google.gmail.getEmails",
+      "name": "Get Emails",
+      "outputs": []
+    },
+    {
+      "id": "gmail_send_email",
+      "type": "google.gmail.sendEmail",
+      "name": "Send Email",
+      "outputs": []
+    },
+    {
+      "id": "todoist_get_today_tasks",
+      "type": "todoist.getTodayTasks",
+      "name": "Get Today's Tasks",
+      "outputs": []
+    },
+    {
+      "id": "todoist_create_task",
+      "type": "todoist.createTask",
+      "name": "Create Task",
+      "outputs": []
+    },
+    {
+      "id": "create_flux_image",
+      "type": "image.flux.create",
+      "name": "Create Flux Image",
+      "outputs": []
+    },
+    {
+      "id": "create_note",
+      "type": "notes.create",
+      "name": "Create Note",
+      "outputs": []
+    }
+  ]
+}
