@@ -1,0 +1,225 @@
+Below is an **industry-style technical example** of **Supply Chain Inventory Analysis** implemented in **Microsoft Excel, SAS, and Python**. The objective is to **calculate safety stock, reorder point, and economic order quantity (EOQ)** to support inventory planning and reduce stock-out risk.
+
+---
+
+---Excel Implementation for Inventory Analysis
+
+---Input Data Structure
+
+| Product ID | Avg Daily Demand | Lead Time (Days) | Demand Std Dev | Service Level | Z Value |
+| ---------- | ---------------- | ---------------- | -------------- | ------------- | ------- |
+| A101       | 120              | 7                | 20             | 95%           | 1.65    |
+| B205       | 80               | 5                | 15             | 90%           | 1.28    |
+
+---
+
+#--Safety Stock Calculation
+
+**Formula**
+
+Safety Stock = Z × σd × √LT
+
+Where
+Z = Service level factor
+σd = Standard deviation of demand
+LT = Lead time
+
+**Excel Implementation**
+
+--excel
+=F2*D2*SQRT(C2)
+
+Output Example
+
+| Product | Safety Stock |
+| ------- | ------------ |
+| A101    | 87           |
+| B205    | 43           |
+
+---
+
+--Reorder Point Calculation
+
+**Formula**
+
+Reorder Point = (Average Daily Demand × Lead Time) + Safety Stock
+
+**Excel Implementation**
+
+--excel
+=(B2*C2)+G2
+
+
+Example Output
+
+| Product | Reorder Point |
+| ------- | ------------- |
+| A101    | 927           |
+| B205    | 443           |
+
+---
+
+--Economic Order Quantity (EOQ)
+
+**Formula**
+
+EOQ = √((2 × Annual Demand × Ordering Cost) / Holding Cost)
+
+--Excel Implementation**
+
+--excel
+=SQRT((2*AnnualDemand*OrderCost)/HoldingCost)
+```
+
+Example
+
+--excel
+=SQRT((2*50000*200)/5)
+
+
+Result
+
+EOQ ≈ **2000 units**
+
+---
+
+# 2. SAS Implementation for Inventory Analysis
+
+## 2.1 Data Preparation
+
+--sas
+data inventory_master;
+input product $ avg_demand lead_time std_dev z_value;
+datalines;
+A101 120 7 20 1.65
+B205 80 5 15 1.28
+;
+run;
+
+
+---
+
+--Inventory Metrics Calculation
+
+--sas
+data inventory_metrics;
+set inventory_master;
+
+safety_stock = z_value * std_dev * sqrt(lead_time);
+
+reorder_point = (avg_demand * lead_time) + safety_stock;
+
+run;
+
+
+---
+
+--Inventory Summary Report
+
+--sas
+proc print data=inventory_metrics;
+title "Inventory Control Metrics";
+run;
+
+
+---
+
+--Demand Forecasting using Moving Average
+
+--sas
+proc expand data=demand_history 
+            out=demand_forecast
+            method=none;
+
+id date;
+
+convert demand = forecast_demand 
+/ transformout=(movave 3);
+
+run;
+
+
+This model generates a **3-period moving average forecast** for demand planning.
+
+---
+
+----Python Implementation for Supply Chain Analytics
+
+--Library Import
+
+
+import pandas as pd
+import numpy as np
+
+
+---
+
+--Inventory Dataset
+
+--Inventory_python
+data = {
+    "Product":["A101","B205"],
+    "AvgDailyDemand":[120,80],
+    "LeadTime":[7,5],
+    "StdDev":[20,15],
+    "Z":[1.65,1.28]
+}
+
+df = pd.DataFrame(data)
+
+
+---
+
+--Safety Stock Calculation
+
+mysafetystock_python
+df["SafetyStock"] = df["Z"] * df["StdDev"] * np.sqrt(df["LeadTime"])
+
+
+---
+
+myReorder Point Calculation
+
+mycode_python
+df["ReorderPoint"] = (df["AvgDailyDemand"] * df["LeadTime"]) + df["SafetyStock"]
+
+
+---
+
+-EOQ Model
+
+--python
+annual_demand = 50000
+ordering_cost = 200
+holding_cost = 5
+
+EOQ = np.sqrt((2 * annual_demand * ordering_cost) / holding_cost)
+
+print("Economic Order Quantity:", EOQ)
+
+
+---
+
+# 4. Analytical Interpretation
+
+| Metric        | Business Interpretation                         |
+| ------------- | ----------------------------------------------- |
+| Safety Stock  | Buffer inventory to mitigate demand variability |
+| Reorder Point | Inventory level triggering replenishment        |
+| EOQ           | Optimal order quantity minimizing total cost    |
+
+---
+
+# 5. Industrial Application Areas
+
+Inventory optimization techniques are widely used in:
+
+• Manufacturing supply chains
+• Retail distribution centers
+• E-commerce fulfillment networks
+• Pharmaceutical inventory planning
+• Automotive spare-parts logistics
+
+---
+
+
