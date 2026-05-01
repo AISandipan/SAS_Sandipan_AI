@@ -1,0 +1,120 @@
+1. Advanced PROC SQL with Dynamic Code Generation
+
+You can use SQL to generate SAS code dynamically, which is a core “generative” idea.
+
+Example: Auto-generate SELECT statements for all numeric columns
+proc sql noprint;
+    select name into :num_cols separated by ', '
+    from dictionary.columns
+    where libname='WORK' 
+          and memname='MYDATA'
+          and type='num';
+quit;
+
+proc sql;
+    select &num_cols
+    from mydata
+    where calculated %scan(&num_cols,1) > 100;
+quit;
+
+-This dynamically builds a query based on metadata — similar to AI-driven adaptability.
+
+2. Using PROC SQL to Generate Rules (AI-style logic)
+Example: Create rule-based segmentation
+proc sql;
+    create table customer_segments as
+    select 
+        customer_id,
+        case 
+            when revenue > 10000 then 'High Value'
+            when revenue between 5000 and 10000 then 'Medium Value'
+            else 'Low Value'
+        end as segment
+    from customers;
+quit;
+
+This mimics decision-tree style classification, a basic AI concept.
+
+3. Generating Text (Pseudo Generative AI in SAS)
+
+You can generate human-readable insights using SQL:
+
+proc sql;
+    create table insights as
+    select 
+        customer_id,
+        cats('Customer ', customer_id, 
+             ' has revenue of ', revenue, 
+             ' and belongs to ', 
+             case 
+                when revenue > 10000 then 'High Value'
+                else 'Regular'
+             end
+        ) as generated_text
+    from customers;
+quit;
+
+This is template-based text generation, similar to early NLP systems.
+
+4. PROC SQL + Macro = Auto Code Generator
+Example: Create multiple tables automatically
+proc sql noprint;
+    select distinct region into :regions separated by ' '
+    from sales;
+quit;
+
+%macro split_data;
+    %let i=1;
+    %do %while (%scan(&regions, &i) ne );
+        %let reg=%scan(&regions, &i);
+
+        proc sql;
+            create table sales_&reg as
+            select *
+            from sales
+            where region="&reg";
+        quit;
+
+        %let i=%eval(&i+1);
+    %end;
+%mend;
+
+%split_data;
+
+This is programmatic dataset generation, similar to automated pipelines.
+
+5. Integrating Real Generative AI (API Approach)
+
+To connect SAS with real AI models (like GPT), you typically:
+
+Use PROC HTTP
+Send data to an API
+Receive generated text
+Example (simplified):
+filename resp temp;
+
+proc http
+    url="https://api.openai.com/v1/chat/completions"
+    method="POST"
+    out=resp;
+    headers
+        "Authorization"="Bearer YOUR_API_KEY"
+        "Content-Type"="application/json";
+    body='{
+        "model": "gpt-4",
+        "messages": [{"role": "user", "content": "Summarize sales data"}]
+    }';
+run;
+
+This is true generative AI integration with SAS.
+
+6. Advanced: Data-driven Query Generation
+
+You can even generate SQL queries from data itself:
+
+proc sql;
+    create table queries as
+    select 
+        cats('select * from sales where region="', region, '";') as sql_stmt
+    from (select distinct region from sales);
+quit;
