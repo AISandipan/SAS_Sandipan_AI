@@ -1,0 +1,81 @@
+/* Advanced Neural Network Models in SAS */
+
+/*----------------------------------------------------*/
+/* 1. Customer Churn Prediction Model */
+/*----------------------------------------------------*/
+proc neural data=work.Customer_Churn;
+   input Age Balance Tenure Products CreditScore / level=interval;
+   target Churn / level=nominal;
+
+   hidden 5;
+   hidden 3;
+
+   train maxiter=100 outmodel=Churn_Model;
+run;
+
+
+/*----------------------------------------------------*/
+/* 2. Fraud Detection Neural Network */
+/*----------------------------------------------------*/
+proc neural data=work.Fraud_Data;
+   input Amount Frequency Transactions AvgSpend / level=interval;
+   target FraudFlag / level=nominal;
+
+   hidden 6;
+
+   train maxiter=150 outmodel=Fraud_Model;
+run;
+
+
+/*----------------------------------------------------*/
+/* 3. Sales Forecasting Deep Learning Model */
+/*----------------------------------------------------*/
+proc neural data=work.Sales_Data;
+   input Sales Profit MarketingSpend Customers / level=interval;
+   target FutureSales / level=interval;
+
+   hidden 8;
+   hidden 4;
+
+   train maxiter=200 outmodel=SalesForecast_Model;
+run;
+
+
+/*----------------------------------------------------*/
+/* 4. Customer Segmentation Model */
+/*----------------------------------------------------*/
+proc neural data=work.Customer_Profile;
+   input Income SpendingScore Age Transactions / level=interval;
+   target Segment / level=nominal;
+
+   hidden 5;
+
+   train maxiter=120 outmodel=Segment_Model;
+run;
+
+
+/*----------------------------------------------------*/
+/* 5. Credit Risk Prediction Model */
+/*----------------------------------------------------*/
+proc neural data=work.CreditRisk;
+   input Income LoanAmount CreditHistory DebtRatio / level=interval;
+   target RiskLevel / level=nominal;
+
+   hidden 7;
+
+   train maxiter=180 outmodel=Risk_Model;
+run;
+
+
+/*----------------------------------------------------*/
+/* 6. Recommendation System Neural Network */
+/*----------------------------------------------------*/
+proc neural data=work.Recommendation_Data;
+   input UserScore PurchaseHistory Visits Ratings / level=interval;
+   target Recommended / level=nominal;
+
+   hidden 10;
+   hidden 5;
+
+   train maxiter=250 outmodel=Recommendation_Model;
+run;
