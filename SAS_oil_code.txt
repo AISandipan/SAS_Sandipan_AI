@@ -1,0 +1,194 @@
+
+/*==============================================================*/
+/* 1. ADVANCED VAR MODEL (Vector Auto Regression)               */
+/* Oil Price → Inflation → Interest Rate → Default Rate         */
+/*==============================================================*/
+
+proc varmax data=macro_data;
+   id date interval=month;
+   model oil_price inflation interest_rate default_rate /
+         p=2 lagmax=6;
+   output out=var_forecast lead=12;
+run;
+
+
+
+/*==============================================================*/
+/* 2. GARCH VOLATILITY MODEL                                    */
+/* Measuring Oil Price Volatility Shock                         */
+/*==============================================================*/
+
+proc autoreg data=oilmarket;
+   model returns = / garch=(p=1,q=1) method=ml;
+   output out=garch_out cev=vht;
+run;
+
+
+
+/*==============================================================*/
+/* 3. MONTE CARLO CREDIT LOSS SIMULATION                        */
+/* Basel III Stress Testing                                     */
+/*==============================================================*/
+
+data montecarlo_loss;
+call streaminit(12345);
+
+do sim=1 to 100000;
+
+   oil_shock = rand("NORMAL",25,10);
+   interest_shock = rand("NORMAL",3,1);
+
+   pd = 1/(1+exp(-(0.08*oil_shock
+                 +0.12*interest_shock)));
+
+   exposure = rand("NORMAL",500000,120000);
+
+   lgd = rand("UNIFORM")*0.6;
+
+   expected_loss = pd * exposure * lgd;
+
+   output;
+end;
+run;
+
+proc means data=montecarlo_loss mean p95 p99;
+var expected_loss;
+run;
+
+
+
+/*==============================================================*/
+/* 4. MACHINE LEARNING RANDOM FOREST                            */
+/* Predicting Loan Default Risk                                 */
+/*==============================================================*/
+
+proc hpforest data=bankrisk
+              maxtrees=1000
+              seed=12345
+              vars_to_try=4
+              maxdepth=20;
+
+   target default_flag / level=binary;
+
+   input oil_price inflation
+         interest_rate unemployment
+         debt_ratio liquidity_ratio
+         gdp_growth market_volatility
+         / level=interval;
+
+   score out=rf_scored;
+run;
+
+
+
+/*==============================================================*/
+/* 5. GRADIENT BOOSTING MODEL                                   */
+/* Advanced Credit Risk Prediction                              */
+/*==============================================================*/
+
+proc gradboost data=loanbook;
+   target default_flag;
+   input oil_price inflation
+         interest_rate unemployment
+         exchange_rate stock_index /
+         level=interval;
+
+   autotune;
+   output out=gbm_out;
+run;
+
+
+
+/*==============================================================*/
+/* 6. NEURAL NETWORK MODEL                                      */
+/* Deep Learning for Risk Analytics                             */
+/*==============================================================*/
+
+proc nnet data=bankrisk;
+   input oil_price inflation
+         interest_rate unemployment
+         market_volatility
+         liquidity_ratio;
+
+   target default_flag;
+
+   hidden 20 10;
+   train outmodel=nnet_model;
+run;
+
+
+
+/*==============================================================*/
+/* 7. SURVIVAL ANALYSIS                                         */
+/* Time-to-Default Modeling                                     */
+/*==============================================================*/
+
+proc phreg data=credit_portfolio;
+   model default_time*default_flag(0) =
+         oil_price inflation
+         interest_rate debt_ratio
+         liquidity_ratio;
+
+   hazardratio oil_price;
+run;
+
+
+
+/*==============================================================*/
+/* 8. PRINCIPAL COMPONENT ANALYSIS                              */
+/* Systemic Risk Compression                                    */
+/*==============================================================*/
+
+proc princomp data=macro_factors
+              out=pca_scores
+              n=3;
+
+   var oil_price inflation
+       interest_rate exchange_rate
+       stock_index gdp_growth
+       market_volatility;
+
+run;
+
+
+
+/*==============================================================*/
+/* 9. VALUE AT RISK (VaR) + EXPECTED SHORTFALL                  */
+/* Market Risk Quantification                                   */
+/*==============================================================*/
+
+proc risk data=tradingbook;
+   portfolio exposure;
+   horizon=10;
+   alpha=0.99;
+
+   simulate method=historical;
+run;
+
+
+
+/*==============================================================*/
+/* 10. IFRS9 EXPECTED CREDIT LOSS MODEL                         */
+/* Lifetime ECL Estimation                                      */
+/*==============================================================*/
+
+data ifrs9_ecl;
+
+set retail_loans;
+
+PD  = 1/(1+exp(-(0.07*oil_price
+               +0.04*inflation
+               +0.09*interest_rate)));
+
+LGD = recovery_rate * 0.65;
+
+EAD = outstanding_balance;
+
+ECL = PD * LGD * EAD;
+
+run;
+
+proc means data=ifrs9_ecl sum mean;
+var ECL;
+run;
+
