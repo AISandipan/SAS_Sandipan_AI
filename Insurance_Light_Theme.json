@@ -1,0 +1,50 @@
+{
+    "name": "Insurance Light KPI Theme",
+    "background": "#F4F7FC",
+    "foreground": "#102A43",
+    "tableAccent": "#14B8A6",
+    "dataColors": [
+        "#14B8A6",
+        "#2563EB",
+        "#8B5CF6",
+        "#F59E0B",
+        "#06B6D4",
+        "#10B981"
+    ],
+    "visualStyles": {
+        "*": {
+            "*": {
+                "background": [
+                    {
+                        "color": {
+                            "solid": {
+                                "color": "#FFFFFF"
+                            }
+                        },
+                        "transparency": 0
+                    }
+                ],
+                "title": [
+                    {
+                        "fontSize": 14,
+                        "color": {
+                            "solid": {
+                                "color": "#102A43"
+                            }
+                        }
+                    }
+                ],
+                "border": [
+                    {
+                        "show": true,
+                        "color": {
+                            "solid": {
+                                "color": "#D9E2EC"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

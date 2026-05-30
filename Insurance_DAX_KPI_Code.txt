@@ -1,0 +1,85 @@
+-- ===========================
+-- INSURANCE RISK & CLAIMS ANALYSIS
+-- Suggested DAX Measures / KPI Code
+-- ===========================
+
+-- Total Policies
+Total Policies =
+DISTINCTCOUNT(Insurance[PolicyID])
+
+-- Total Claim Amount
+Total Claim Amount =
+SUM(Insurance[ClaimAmount])
+
+-- Average Claim Frequency
+Avg Claim Frequency =
+AVERAGE(Insurance[ClaimFrequency])
+
+-- Average Claim Amount
+Avg Claim Amount =
+DIVIDE([Total Claim Amount], COUNTROWS(Insurance), 0)
+
+-- Male Count
+Male Count =
+CALCULATE(
+    DISTINCTCOUNT(Insurance[CustomerID]),
+    Insurance[Gender] = "Male"
+)
+
+-- Female Count
+Female Count =
+CALCULATE(
+    DISTINCTCOUNT(Insurance[CustomerID]),
+    Insurance[Gender] = "Female"
+)
+
+-- Claim Amount by Car Use
+Claim Amount by Car Use =
+SUM(Insurance[ClaimAmount])
+
+-- Claim Amount by Car Make
+Claim Amount by Car Make =
+SUM(Insurance[ClaimAmount])
+
+-- Claim Amount by Coverage Zone
+Claim Amount by Coverage Zone =
+SUM(Insurance[ClaimAmount])
+
+-- Claim Amount by Age Group
+Claim Amount by Age Group =
+SUM(Insurance[ClaimAmount])
+
+-- Claim Amount by Car Year
+Claim Amount by Car Year =
+SUM(Insurance[ClaimAmount])
+
+-- Claim Amount by Kids Driving
+Claim Amount by Kids Driving =
+SUM(Insurance[ClaimAmount])
+
+-- Claim Amount by Education
+Claim Amount by Education =
+SUM(Insurance[ClaimAmount])
+
+-- Matrix Amount (Education + Marital Status)
+Claim Matrix Amount =
+SUM(Insurance[ClaimAmount])
+
+-- Dynamic Measure Selector
+Selected Measure =
+SWITCH(
+    SELECTEDVALUE(Measure_Table[Measure]),
+    "Total Claim Amount", [Total Claim Amount],
+    "Avg Claim Amount", [Avg Claim Amount],
+    "Total Policies", [Total Policies],
+    [Total Claim Amount]
+)
+
+-- KPI Trend Indicator
+Claim Trend Icon =
+SWITCH(
+    TRUE(),
+    [Total Claim Amount] > 1000000, "▲",
+    [Total Claim Amount] < 500000, "▼",
+    "▬"
+)
