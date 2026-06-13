@@ -1,0 +1,426 @@
+
+/*=========================================================
+1. Display All Records
+=========================================================*/
+%macro view_all;
+proc print data=WORK.customer_sas_new;
+run;
+%mend;
+%view_all;
+
+
+/*=========================================================
+2. Total Customer Count
+=========================================================*/
+%macro total_customers;
+proc sql;
+select count(*) as Total_Customers
+from WORK.customer_sas_new;
+quit;
+%mend;
+%total_customers;
+
+
+/*=========================================================
+3. Count Customers by Gender
+=========================================================*/
+%macro gender_count(gender);
+proc sql;
+select count(*) as Total
+from WORK.customer_sas_new
+where Gender="&gender";
+quit;
+%mend;
+%gender_count(Female);
+
+
+/*=========================================================
+4. Customers by Service
+=========================================================*/
+%macro service_filter(service);
+proc sql;
+select *
+from WORK.customer_sas_new
+where Service="&service";
+quit;
+%mend;
+%service_filter(Loan);
+
+
+/*=========================================================
+5. Customers by City
+=========================================================*/
+%macro city_filter(city);
+proc sql;
+select *
+from WORK.customer_sas_new
+where City="&city";
+quit;
+%mend;
+%city_filter(London);
+
+
+/*=========================================================
+6. Average Balance
+=========================================================*/
+%macro avg_balance;
+proc sql;
+select round(avg(Balance),0.01) as Avg_Balance
+from WORK.customer_sas_new;
+quit;
+%mend;
+%avg_balance;
+
+
+/*=========================================================
+7. Profit Statistics
+=========================================================*/
+%macro profit_stats;
+proc sql;
+select
+max(Profit) as Max_Profit,
+min(Profit) as Min_Profit,
+avg(Profit) as Avg_Profit
+from WORK.customer_sas_new;
+quit;
+%mend;
+%profit_stats;
+
+
+/*=========================================================
+8. Total Sales
+=========================================================*/
+%macro total_sales;
+proc sql;
+select sum(Sales) as Total_Sales
+from WORK.customer_sas_new;
+quit;
+%mend;
+%total_sales;
+
+
+/*=========================================================
+9. Customers Above Balance Threshold
+=========================================================*/
+%macro high_balance(amount);
+proc sql;
+select *
+from WORK.customer_sas_new
+where Balance>&amount;
+quit;
+%mend;
+%high_balance(50000);
+
+
+/*=========================================================
+10. Customers Between Age Range
+=========================================================*/
+%macro age_range(min,max);
+proc sql;
+select *
+from WORK.customer_sas_new
+where Age between &min and &max;
+quit;
+%mend;
+%age_range(30,40);
+
+
+/*=========================================================
+11. Top N Customers by Sales
+=========================================================*/
+%macro top_sales(n);
+proc sql outobs=&n;
+select *
+from WORK.customer_sas_new
+order by Sales desc;
+quit;
+%mend;
+%top_sales(10);
+
+
+/*=========================================================
+12. Service-wise Summary
+=========================================================*/
+%macro service_summary;
+proc sql;
+select Service,
+count(*) as Customers,
+sum(Sales) as Total_Sales,
+sum(Profit) as Total_Profit
+from WORK.customer_sas_new
+group by Service;
+quit;
+%mend;
+%service_summary;
+
+
+/*=========================================================
+13. Account Type Summary
+=========================================================*/
+%macro account_summary;
+proc sql;
+select AccountType,
+count(*) as Customers,
+avg(Balance) as Avg_Balance
+from WORK.customer_sas_new
+group by AccountType;
+quit;
+%mend;
+%account_summary;
+
+
+/*=========================================================
+14. City-wise Sales Report
+=========================================================*/
+%macro city_sales;
+proc sql;
+select City,
+sum(Sales) as Total_Sales,
+sum(Profit) as Total_Profit
+from WORK.customer_sas_new
+group by City
+order by Total_Sales desc;
+quit;
+%mend;
+%city_sales;
+
+
+/*=========================================================
+15. Dynamic Sorting Macro
+=========================================================*/
+%macro sort_data(variable,order);
+proc sql;
+select *
+from WORK.customer_sas_new
+order by &variable &order;
+quit;
+%mend;
+%sort_data(Sales,desc);
+/*=========================================================
+1. Customer Segmentation by Balance
+=========================================================*/
+%macro customer_segment;
+proc sql;
+select CustomerID,
+       Name,
+       Balance,
+       case
+          when Balance >= 100000 then 'Premium'
+          when Balance >= 50000 then 'Gold'
+          else 'Regular'
+       end as Segment
+from WORK.customer_sas_new;
+quit;
+%mend;
+%customer_segment;
+
+
+/*=========================================================
+2. Top Profitable Customers
+=========================================================*/
+%macro top_profit(n);
+proc sql outobs=&n;
+select *
+from WORK.customer_sas_new
+order by Profit desc;
+quit;
+%mend;
+%top_profit(10);
+
+
+/*=========================================================
+3. Service Wise Profit Analysis
+=========================================================*/
+%macro service_profit;
+proc sql;
+select Service,
+       sum(Profit) as Total_Profit,
+       avg(Profit) as Avg_Profit
+from WORK.customer_sas_new
+group by Service;
+quit;
+%mend;
+%service_profit;
+
+
+/*=========================================================
+4. Gender Wise Sales Analysis
+=========================================================*/
+%macro gender_sales;
+proc sql;
+select Gender,
+       count(*) as Customers,
+       sum(Sales) as Total_Sales
+from WORK.customer_sas_new
+group by Gender;
+quit;
+%mend;
+%gender_sales;
+
+
+/*=========================================================
+5. High Value Customers
+=========================================================*/
+%macro high_value(amount);
+proc sql;
+select *
+from WORK.customer_sas_new
+where Sales >= &amount;
+quit;
+%mend;
+%high_value(100000);
+
+
+/*=========================================================
+6. Account Type Performance
+=========================================================*/
+%macro account_performance;
+proc sql;
+select AccountType,
+       count(*) as Customers,
+       sum(Sales) as Sales,
+       sum(Profit) as Profit
+from WORK.customer_sas_new
+group by AccountType;
+quit;
+%mend;
+%account_performance;
+
+
+/*=========================================================
+7. Age Group Analysis
+=========================================================*/
+%macro age_group;
+proc sql;
+select
+case
+ when Age < 30 then 'Young'
+ when Age between 30 and 40 then 'Middle'
+ else 'Senior'
+end as Age_Group,
+count(*) as Customers
+from WORK.customer_sas_new
+group by calculated Age_Group;
+quit;
+%mend;
+%age_group;
+
+
+/*=========================================================
+8. Customer Ranking by Sales
+=========================================================*/
+%macro sales_rank;
+proc rank data=WORK.customer_sas_new
+          out=ranked_customer
+          descending;
+var Sales;
+ranks Sales_Rank;
+run;
+
+proc print data=ranked_customer;
+run;
+%mend;
+%sales_rank;
+
+
+/*=========================================================
+9. Profit Margin Analysis
+=========================================================*/
+%macro profit_margin;
+proc sql;
+select *,
+       round((Profit/Sales)*100,2) as Profit_Margin
+from WORK.customer_sas_new;
+quit;
+%mend;
+%profit_margin;
+
+
+/*=========================================================
+10. City Performance Report
+=========================================================*/
+%macro city_performance;
+proc sql;
+select City,
+       sum(Sales) as Sales,
+       sum(Profit) as Profit
+from WORK.customer_sas_new
+group by City
+order by Sales desc;
+quit;
+%mend;
+%city_performance;
+
+
+/*=========================================================
+11. Loan Customer Report
+=========================================================*/
+%macro loan_customers;
+proc sql;
+select *
+from WORK.customer_sas_new
+where Service='Loan';
+quit;
+%mend;
+%loan_customers;
+
+
+/*=========================================================
+12. Premium Customer List
+=========================================================*/
+%macro premium_customer;
+proc sql;
+select *
+from WORK.customer_sas_new
+where Balance >= 100000;
+quit;
+%mend;
+%premium_customer;
+
+
+/*=========================================================
+13. Dynamic Service Report
+=========================================================*/
+%macro service_report(service);
+proc sql;
+select *
+from WORK.customer_sas_new
+where Service="&service";
+quit;
+%mend;
+%service_report(Investment);
+
+
+/*=========================================================
+14. Customer KPI Dashboard
+=========================================================*/
+%macro kpi_dashboard;
+proc sql;
+select
+count(*) as Customers,
+sum(Sales) as Total_Sales,
+sum(Profit) as Total_Profit,
+avg(Balance) as Avg_Balance
+from WORK.customer_sas_new;
+quit;
+%mend;
+%kpi_dashboard;
+
+
+/*=========================================================
+15. Export Summary Report
+=========================================================*/
+%macro export_report;
+proc summary data=WORK.customer_sas_new;
+var Sales Profit Balance;
+output out=summary_report
+sum=;
+run;
+
+proc export data=summary_report
+outfile="C:\Temp\Customer_Report.csv"
+dbms=csv
+replace;
+run;
+%mend;
+%export_report;
